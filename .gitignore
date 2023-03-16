@@ -1,0 +1,52 @@
+# Visual Studio
+.vs/
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Debug and release folders
+Debug/
+Release/
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Dump files
+*.dmp
+
+# Windows app packaging
+packages/
+./Generated\ Files/
+AppPackages/
+
+# Publish to MS Store
+#listings/
+
+# The temp project
+temp/
+
+# Tutorial files
+Tutorial/

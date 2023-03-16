@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\public">
+      <UniqueIdentifier>{055b75e0-5205-49ba-87de-a5f35e80ec94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\private">
+      <UniqueIdentifier>{a4fa863d-c761-4a28-8429-60daf22301b0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="private\ff_helpers.h">
+      <Filter>Source Files\private</Filter>
+    </ClInclude>
+    <ClInclude Include="private\ff_math_helpers.h">
+      <Filter>Source Files\private</Filter>
+    </ClInclude>
+    <ClInclude Include="public\ff_time.h">
+      <Filter>Source Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\media.h">
+      <Filter>Source Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\decoder.h">
+      <Filter>Source Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\frame.h">
+      <Filter>Source Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\codec.h">
+      <Filter>Source Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\encoder.h">
+      <Filter>Source Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\image_converter.h">
+      <Filter>Source Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\audio_resampler.h">
+      <Filter>Source Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="public\audio_fifo.h">
+      <Filter>Source Files\public</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="public\ff_time.cpp">
+      <Filter>Source Files\public</Filter>
+    </ClCompile>
+    <ClCompile Include="private\ff_helpers.cpp">
+      <Filter>Source Files\private</Filter>
+    </ClCompile>
+    <ClCompile Include="public\media.cpp">
+      <Filter>Source Files\public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\decoder.cpp">
+      <Filter>Source Files\public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\frame.cpp">
+      <Filter>Source Files\public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\codec.cpp">
+      <Filter>Source Files\public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\encoder.cpp">
+      <Filter>Source Files\public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\image_converter.cpp">
+      <Filter>Source Files\public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\audio_resampler.cpp">
+      <Filter>Source Files\public</Filter>
+    </ClCompile>
+    <ClCompile Include="public\audio_fifo.cpp">
+      <Filter>Source Files\public</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
