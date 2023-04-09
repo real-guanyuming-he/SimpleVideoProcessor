@@ -78,6 +78,6 @@ int ff::audio_resampler::convert(const frame& src_frame, frame& dst_frame)
 int ff::audio_resampler::calculate_dst_num_samples(int src_num_samples) const
 {
 	// (swr_get_delay(swr_ctx, src_rate) + src_num_samples) * dst_rate/src_rate
-	return av_rescale_rnd(swr_get_delay(swr_ctx, src_rate) + src_num_samples, dst_rate, src_rate, AV_ROUND_UP);
+	return static_cast<int>(av_rescale_rnd(swr_get_delay(swr_ctx, src_rate) + src_num_samples, dst_rate, src_rate, AV_ROUND_UP));
 }
 

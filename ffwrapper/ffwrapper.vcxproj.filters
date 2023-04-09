@@ -15,6 +15,21 @@
     <Filter Include="Source Files\private">
       <UniqueIdentifier>{a4fa863d-c761-4a28-8429-60daf22301b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\public\interfaces">
+      <UniqueIdentifier>{df713935-0f52-439c-8dc9-79d5fa1e4198}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\private\utility">
+      <UniqueIdentifier>{209ea83a-307b-47c8-bef3-c84b35463aa9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\public\codec">
+      <UniqueIdentifier>{d6a20379-d049-40fe-88ef-bb4d92232ef5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\public\utility">
+      <UniqueIdentifier>{ff5df3cc-b146-4df6-90b4-2e73830c8b20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\public\de/mux">
+      <UniqueIdentifier>{675b92e4-f6e1-4db9-bd01-9e85c593847c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="private\ff_helpers.h">
@@ -23,64 +38,88 @@
     <ClInclude Include="private\ff_math_helpers.h">
       <Filter>Source Files\private</Filter>
     </ClInclude>
-    <ClInclude Include="public\ff_time.h">
-      <Filter>Source Files\public</Filter>
-    </ClInclude>
     <ClInclude Include="public\media.h">
-      <Filter>Source Files\public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\decoder.h">
       <Filter>Source Files\public</Filter>
     </ClInclude>
     <ClInclude Include="public\frame.h">
       <Filter>Source Files\public</Filter>
     </ClInclude>
+    <ClInclude Include="public\interfaces\src_sink.h">
+      <Filter>Source Files\public\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="public\interfaces\queue_src.h">
+      <Filter>Source Files\public\interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="private\utility\info.h">
+      <Filter>Source Files\private\utility</Filter>
+    </ClInclude>
     <ClInclude Include="public\codec.h">
-      <Filter>Source Files\public</Filter>
+      <Filter>Source Files\public\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="public\decoder.h">
+      <Filter>Source Files\public\codec</Filter>
     </ClInclude>
     <ClInclude Include="public\encoder.h">
-      <Filter>Source Files\public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\image_converter.h">
-      <Filter>Source Files\public</Filter>
-    </ClInclude>
-    <ClInclude Include="public\audio_resampler.h">
-      <Filter>Source Files\public</Filter>
+      <Filter>Source Files\public\codec</Filter>
     </ClInclude>
     <ClInclude Include="public\audio_fifo.h">
-      <Filter>Source Files\public</Filter>
+      <Filter>Source Files\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="public\audio_resampler.h">
+      <Filter>Source Files\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="public\image_converter.h">
+      <Filter>Source Files\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="public\ff_time.h">
+      <Filter>Source Files\public\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="public\demuxer.h">
+      <Filter>Source Files\public\de/mux</Filter>
+    </ClInclude>
+    <ClInclude Include="public\muxer.h">
+      <Filter>Source Files\public\de/mux</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="public\ff_time.cpp">
-      <Filter>Source Files\public</Filter>
-    </ClCompile>
     <ClCompile Include="private\ff_helpers.cpp">
       <Filter>Source Files\private</Filter>
     </ClCompile>
     <ClCompile Include="public\media.cpp">
       <Filter>Source Files\public</Filter>
     </ClCompile>
-    <ClCompile Include="public\decoder.cpp">
-      <Filter>Source Files\public</Filter>
-    </ClCompile>
     <ClCompile Include="public\frame.cpp">
       <Filter>Source Files\public</Filter>
     </ClCompile>
     <ClCompile Include="public\codec.cpp">
-      <Filter>Source Files\public</Filter>
+      <Filter>Source Files\public\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="public\decoder.cpp">
+      <Filter>Source Files\public\codec</Filter>
     </ClCompile>
     <ClCompile Include="public\encoder.cpp">
-      <Filter>Source Files\public</Filter>
-    </ClCompile>
-    <ClCompile Include="public\image_converter.cpp">
-      <Filter>Source Files\public</Filter>
+      <Filter>Source Files\public\codec</Filter>
     </ClCompile>
     <ClCompile Include="public\audio_resampler.cpp">
-      <Filter>Source Files\public</Filter>
+      <Filter>Source Files\public\utility</Filter>
     </ClCompile>
     <ClCompile Include="public\audio_fifo.cpp">
-      <Filter>Source Files\public</Filter>
+      <Filter>Source Files\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="public\image_converter.cpp">
+      <Filter>Source Files\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="public\ff_time.cpp">
+      <Filter>Source Files\public\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="private\utility\info.cpp">
+      <Filter>Source Files\private\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="public\demuxer.cpp">
+      <Filter>Source Files\public\de/mux</Filter>
+    </ClCompile>
+    <ClCompile Include="public\muxer.cpp">
+      <Filter>Source Files\public\de/mux</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

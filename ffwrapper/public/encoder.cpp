@@ -10,6 +10,7 @@ extern "C"
 #include "decoder.h"
 #include "../private/ff_helpers.h"
 #include "../private/ff_math_helpers.h"
+#include "../private/utility/info.h"
 
 #include <stdexcept>
 
@@ -23,71 +24,67 @@ ff::encoder::encoder(int ID)
 	codec = avcodec_find_encoder((AVCodecID)ID);
 }
 
-int ff::encoder::feed_a_frame(frame& f)
+bool ff::encoder::try_feed(ff::frame& frame)
 {
-    return avcodec_send_frame(codec_ctx, f);
+	int ret = avcodec_send_frame(codec_ctx, frame);
+
+	if (ret < 0)
+	{
+		switch (ret)
+		{
+		case AVERROR_EOF:
+		case AVERROR(EAGAIN):
+			return false;
+		default:
+			ON_FF_ERROR_WITH_CODE("Could not feed a frame to the encoder.", ret);
+		}
+	}
+
+	return true;
 }
 
-bool ff::encoder::encode_next_packet(packet& pkt)
+ff::packet ff::encoder::try_get_one()
 {
-	// See https://ffmpeg.org/doxygen/5.1/group__lavc__encdec.html
-
-	// try to get a frame from the decoder
+	ff::packet pkt;
 	int ret = avcodec_receive_packet(codec_ctx, pkt);
 
 	if (ret >= 0) // we got the frame we want
 	{
-		return true;
+		return pkt;
 	}
-	else if (ret == AVERROR_EOF)
+	else
 	{
-		if (!is_eof_reached) // the first time EOF is reached
+		switch (ret)
 		{
-			is_eof_reached = true;
-
-			return drain_encoder(pkt);
-		}
-		else
-		{
-			// No more frames is available.
-			return false;
+		case AVERROR_EOF:
+			eof_reached = true;
+		case AVERROR(EAGAIN):
+			return ff::packet(nullptr);
+		default:
+			ON_FF_ERROR_WITH_CODE("Could not encode a packet.", ret);
 		}
 	}
-	else if (ret == AVERROR(EAGAIN)) // we need to feed more packets before we can get a frame.
-	{
-		return false;
-	}
+}
 
-	return false;
+void ff::encoder::flush_codec()
+{
+	super::flush_codec();
+	// reset eof state as the decoder is flushed.
+	eof_reached = false;
+}
+
+void ff::encoder::start_draining()
+{
+	int ret = avcodec_send_frame(codec_ctx, nullptr);
+	if (ret < 0)
+	{
+		ON_FF_ERROR_WITH_CODE("Could not enter the draining mode during encoding.", ret)
+	}
 }
 
 int ff::encoder::get_desired_pixel_format() const
 {
 	return get_codec()->pix_fmts[0];
-}
-
-bool ff::encoder::drain_encoder(packet& pkt)
-{
-	// enter draining mode
-	int ret = avcodec_send_frame(codec_ctx, nullptr);
-	if (ret < 0)
-	{
-		ON_FF_ERROR("Could not enter the draining mode in decoding.")
-	}
-	// see if there are buffered packet remaining
-	ret = avcodec_receive_packet(codec_ctx, pkt);
-	if (ret >= 0) // we got the packet we want
-	{
-		return true;
-	}
-	if (ret == AVERROR_EOF) // no more packets
-	{
-		return false;
-	}
-	else
-	{
-		ON_FF_ERROR("Could not get a frame in decoding.")
-	}
 }
 
 void ff::encoder::get_best_audio_channel(::AVChannelLayout* dst) const
@@ -111,11 +108,13 @@ void ff::encoder::get_best_audio_channel(::AVChannelLayout* dst) const
 	else // If the codec has some
 	{
 		p = codec->ch_layouts;
-		while (p->nb_channels)
+		// find the channel layout with the largest number of channels
+		while (p->nb_channels) // the array is terminated by a zeroed channel layout
 		{
 			int nb_channels = p->nb_channels;
 
-			if (nb_channels > best_nb_channels) {
+			if (nb_channels > best_nb_channels) 
+			{
 				best_ch_layout = p;
 				best_nb_channels = nb_channels;
 			}
@@ -140,18 +139,25 @@ int ff::encoder::get_best_audio_sample_rate() const
 
 	if (!codec->supported_samplerates)
 	{
-		return 44100;
+		return ffhelpers::common_audio_sample_rate;
 	}
 
 	const int* p = codec->supported_samplerates;
-	while (*p) 
+	// find the highest rate in the array.
+	while (*p) // the array is terminated by 0
 	{
-		if (!best_samplerate || abs(44100 - *p) < abs(44100 - best_samplerate))
+		if (best_samplerate < *p)
 		{
 			best_samplerate = *p;
 		}
 		++p;
 	}
+
+	if (best_samplerate == 0) // the encoder does not know its supported sample rates.
+	{
+		return ffhelpers::common_audio_sample_rate;
+	}
+
 	return best_samplerate;
 }
 
@@ -166,18 +172,119 @@ int ff::encoder::get_required_number_of_samples_per_channel() const
 	return codec_ctx->frame_size;
 }
 
-ff::transcode_encoder::transcode_encoder(const decoder& d, const char* name) : encoder(name), dec(d)
+bool ff::encoder::is_pixel_format_supported(int fmt) const
 {
+	if (!codec->pix_fmts) // unknown
+	{
+		return false;
+	}
+	else
+	{
+		const AVPixelFormat* pf = codec->pix_fmts;
+		while (*pf != -1) // the array is -1-terminated.
+		{
+			if ((AVPixelFormat)fmt == *pf)
+			{
+				return true;
+			}
+			++pf;
+		}
+	}
+
+	return false;
 }
 
-ff::transcode_encoder::transcode_encoder(const decoder& d, int ID) : encoder(ID), dec(d)
+bool ff::encoder::is_audio_sample_format_supported(int fmt) const
 {
+	if (!codec->sample_fmts) // unknown
+	{
+		return false;
+	}
+	else
+	{
+		const AVSampleFormat* pf = codec->sample_fmts;
+		while (*pf != -1) // the array is -1-terminated.
+		{
+			if ((AVSampleFormat)fmt == *pf)
+			{
+				return true;
+			}
+			++pf;
+		}
+	}
+
+	return false;
 }
 
-void ff::transcode_encoder::create(const media& m)
+bool ff::encoder::is_audio_sample_rate_supported(int rate) const
 {
-	const output_media& opt_media = static_cast<const output_media&>(m);
+	if (!codec->supported_samplerates) // unknown
+	{
+		return false;
+	}
+	else
+	{
+		const int* psr = codec->supported_samplerates;
+		while (*psr != 0) // terminated by 0
+		{
+			if (rate == *psr)
+			{
+				return true;
+			}
+			++psr;
+		}
+	}
 
+	return false;
+}
+
+bool ff::encoder::is_audio_channel_layout_supported(const::AVChannelLayout* layout) const
+{
+	if (!codec->ch_layouts)
+	{
+		return false;
+	}
+	else
+	{
+		const AVChannelLayout* pcl = codec->ch_layouts;
+		while (pcl->nb_channels != 0) // terminated by a zeroed layout
+		{
+			if (!av_channel_layout_compare(layout, pcl))
+			{
+				return true;
+			}
+			++pcl;
+		}
+	}
+
+	return false;
+}
+
+bool ff::encoder::is_video_setting_supported(const video_info& info) const
+{
+	return is_pixel_format_supported(info.pix_fmt);
+}
+
+bool ff::encoder::is_audio_setting_supported(const audio_info&info) const
+{
+	return
+		is_audio_sample_format_supported(info.sample_fmt) &&
+		is_audio_sample_rate_supported(info.sample_rate) &&
+		is_audio_channel_layout_supported(&info.ch_layout);
+}
+
+ff::transcode_encoder::transcode_encoder(const decoder& d, const output_media& m, const char* name) : encoder(name)
+{
+	fill_encoder_info(d, m);
+}
+
+ff::transcode_encoder::transcode_encoder(const decoder& d, const output_media& m, int ID) : encoder(ID)
+{
+	fill_encoder_info(d, m);
+}
+
+void ff::transcode_encoder::fill_encoder_info(const decoder& dec, const output_media& m)
+{
 	/* Allocate a codec context for the encoder */
 	codec_ctx = avcodec_alloc_context3(codec);
 	if (!codec_ctx)
@@ -185,51 +292,41 @@ void ff::transcode_encoder::create(const media& m)
 		ON_FF_ERROR("Failed to allocate the encoder context.")
 	}
 
-	/* Copy codec parameters from the decoder and the codec to endoder codec context */
+	// Copy infomation from the decoder to encoder.
+	// If some part of the info is unavailble, we decide from the encoder's supported formats.
 	{
 		auto dec_ctx = dec.get_codec_ctx();
 
-		// If the time base is set in the decoder, the we use it in the encoder.
-		// If not, we set it according to the type.
+		// If the time base is set because of a rate change, then we will not use the decoder's time base.
 		bool time_base_set = false;
-		if (dec_ctx->time_base.num != 0 && dec_ctx->time_base.den != 0)
-		{
-			codec_ctx->time_base = dec_ctx->time_base;
-			time_base_set = true;
-		}
 
 		//if (dec_ctx->bit_rate != 0)
 		//{
 		//	 codec_ctx->bit_rate = dec_ctx->bit_rate;
 		//}
-
 		switch (codec->type)
 		{
-		case AVMEDIA_TYPE_VIDEO:
-			codec_ctx->pix_fmt = (AVPixelFormat)get_desired_pixel_format();
+		case AVMEDIA_TYPE_VIDEO:	
+			codec_ctx->pix_fmt = is_pixel_format_supported(dec_ctx->pix_fmt) ?
+				dec_ctx->pix_fmt : (AVPixelFormat)get_desired_pixel_format();
 			codec_ctx->width = dec_ctx->width;
 			codec_ctx->height = dec_ctx->height;
 
-			if (!time_base_set) codec_ctx->time_base = ffhelpers::ff_common_video_time_base;
+			// TODO: check if framerate is supported and change the time base if a different one should be used.
 			break;
 
 		case AVMEDIA_TYPE_AUDIO:
-			codec_ctx->sample_fmt = (AVSampleFormat)get_desired_audio_sample_format();
-
-			if (dec_ctx->sample_rate > 10000) // If the decoder's sample rate is good enough 
+			codec_ctx->sample_fmt = is_audio_sample_format_supported(dec_ctx->sample_fmt) ?
+				dec_ctx->sample_fmt : (AVSampleFormat)get_desired_audio_sample_format();
+			codec_ctx->sample_rate = is_audio_sample_rate_supported(dec_ctx->sample_rate) ?
+				dec_ctx->sample_rate : get_best_audio_sample_rate();
+			if (is_audio_channel_layout_supported(&dec_ctx->ch_layout))
 			{
-				// then use its
-				codec_ctx->sample_rate = dec_ctx->sample_rate;
-			}
-			else // If the decoder's sample rate isn't good enough
-			{
-				// Then use the best the codec supports
-				codec_ctx->sample_rate = get_best_audio_sample_rate();
-			}
-
-			if (dec_ctx->ch_layout.nb_channels > 0)
-			{
-				av_channel_layout_copy(&codec_ctx->ch_layout, &dec_ctx->ch_layout);
+				int err = 0;
+				if ((err = av_channel_layout_copy(&codec_ctx->ch_layout, &dec_ctx->ch_layout)) < 0)
+				{
+					ON_FF_ERROR_WITH_CODE("Could not copy channel layout.", err);
+				}
 			}
 			else
 			{
@@ -238,20 +335,44 @@ void ff::transcode_encoder::create(const media& m)
 
 			/* Some container formats (like MP4) require global headers to be present.
 			* Mark the encoder so that it behaves accordingly. */
-			if (opt_media.get_format_ctx()->oformat->flags & AVFMT_GLOBALHEADER)
+			if (m.get_format_ctx()->oformat->flags & AVFMT_GLOBALHEADER)
+			{
 				codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+			}
 
-			codec_ctx->time_base.num = 1;
-			codec_ctx->time_base.den = codec_ctx->sample_rate;
-			//if (!time_base_set) codec_ctx->time_base = ffhelpers::ff_common_audio_time_base;
+			if (dec_ctx->time_base != codec_ctx->time_base)
+			{
+				codec_ctx->time_base.num = 1;
+				codec_ctx->time_base.den = codec_ctx->sample_rate;
+				time_base_set = true;
+			}
+
 			break;
 
 		default:
-			if (!time_base_set) codec_ctx->time_base = ffhelpers::ff_global_time_base;
+			break;
+		}
+
+		if (!time_base_set) // if time base is not supposed to be changed, then use the decoder's.
+		{
+			if (dec_ctx->time_base.num != 0 && dec_ctx->time_base.den != 0)
+			{
+				codec_ctx->time_base = dec_ctx->time_base;
+			}
+			else
+			{
+				codec_ctx->time_base = ffhelpers::ff_global_time_base;
+			}
 		}
 
 	}
 
+
+	//avcodec_parameters_free(&par);
+}
+
+void ff::transcode_encoder::create()
+{
 	configure_multithreading(16);
 
 	int ret = 0;
@@ -260,6 +381,4 @@ void ff::transcode_encoder::create(const media& m)
 	{
 		ON_FF_ERROR("Failed to open the encoder.")
 	}
-
-	//avcodec_parameters_free(&par);
 }

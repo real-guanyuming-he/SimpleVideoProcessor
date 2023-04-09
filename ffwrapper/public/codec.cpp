@@ -5,6 +5,7 @@ extern "C"
 }
 
 #include "../private/ff_helpers.h"
+#include "../private/utility/info.h"
 
 #include "codec.h"
 
@@ -13,6 +14,11 @@ extern "C"
 void ff::codec_base::destroy()
 {
 	ffhelpers::safely_free_codec_context(&codec_ctx);
+}
+
+void ff::codec_base::flush_codec()
+{
+	avcodec_flush_buffers(codec_ctx);
 }
 
 int ff::codec_base::get_current_pixel_format() const
@@ -25,7 +31,7 @@ int ff::codec_base::get_current_pixel_format() const
 	return 0;
 }
 
-void ff::codec_base::copy_current_audio_channel(::AVChannelLayout* dst) const
+void ff::codec_base::get_current_audio_channel(::AVChannelLayout* dst) const
 {
 	int ret = 0;
 	if (codec_ctx)
@@ -75,6 +81,25 @@ const AVRational* ff::codec_base::get_current_time_base() const
 	}
 
 	return nullptr;
+}
+
+void ff::codec_base::get_current_video_info(video_info& info) const
+{
+	info.height = codec_ctx->height;
+	info.width = codec_ctx->width;
+	info.pix_fmt = codec_ctx->pix_fmt;
+}
+
+void ff::codec_base::get_current_audio_info(audio_info& info) const
+{
+	info.sample_fmt = codec_ctx->sample_fmt;
+	info.sample_rate = codec_ctx->sample_rate;
+
+	int err = 0;
+	if ((err = av_channel_layout_copy(&info.ch_layout, &codec_ctx->ch_layout)) < 0)
+	{
+		ON_FF_ERROR_WITH_CODE("Could not copy the channel layout.", err)
+	}
 }
 
 void ff::codec_base::configure_multithreading(int num_threads)

@@ -21,27 +21,35 @@
   <ItemGroup>
     <ClInclude Include="private\ff_helpers.h" />
     <ClInclude Include="private\ff_math_helpers.h" />
+    <ClInclude Include="private\utility\info.h" />
     <ClInclude Include="public\audio_fifo.h" />
     <ClInclude Include="public\audio_resampler.h" />
     <ClInclude Include="public\codec.h" />
     <ClInclude Include="public\decoder.h" />
+    <ClInclude Include="public\demuxer.h" />
     <ClInclude Include="public\encoder.h" />
     <ClInclude Include="public\ff_time.h" />
     <ClInclude Include="public\frame.h" />
     <ClInclude Include="public\image_converter.h" />
+    <ClInclude Include="public\interfaces\queue_src.h" />
+    <ClInclude Include="public\interfaces\src_sink.h" />
     <ClInclude Include="public\media.h" />
+    <ClInclude Include="public\muxer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\ff_helpers.cpp" />
+    <ClCompile Include="private\utility\info.cpp" />
     <ClCompile Include="public\audio_fifo.cpp" />
     <ClCompile Include="public\audio_resampler.cpp" />
     <ClCompile Include="public\codec.cpp" />
     <ClCompile Include="public\decoder.cpp" />
+    <ClCompile Include="public\demuxer.cpp" />
     <ClCompile Include="public\encoder.cpp" />
     <ClCompile Include="public\ff_time.cpp" />
     <ClCompile Include="public\frame.cpp" />
     <ClCompile Include="public\image_converter.cpp" />
     <ClCompile Include="public\media.cpp" />
+    <ClCompile Include="public\muxer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

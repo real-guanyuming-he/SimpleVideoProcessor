@@ -37,6 +37,11 @@ Release/
 # Dump files
 *.dmp
 
+# multimedia files
+*.mp4
+*.avi
+*.bmp
+
 # Windows app packaging
 packages/
 ./Generated\ Files/

@@ -2,7 +2,7 @@
 
 #include "ff_time.h"
 
-ff::time::time(double secs) noexcept
+ff::time_hms::time_hms(double secs) noexcept
 {
 	// as an integer. The numbers after the point will not be lost. They are added at the double seconds assignment.
 	long all_seconds = (long)secs;
@@ -18,4 +18,4 @@ ff::time::time(double secs) noexcept
 	secs = seconds;
 }
 
-ff::time::time(const AVRational& t) noexcept : time(ffhelpers::av_rational_to_double(t)) {}
+ff::time_hms::time_hms(time t) noexcept: time_hms(ffhelpers::av_rational_to_double(t)) {}

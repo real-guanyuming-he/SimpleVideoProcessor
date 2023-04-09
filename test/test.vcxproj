@@ -139,13 +139,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ffmpeg.c" />
+    <ClCompile Include="remux.cpp" />
     <ClCompile Include="test.cpp" />
-    <ClCompile Include="transcode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ffwrapper\ffwrapper.vcxproj">
       <Project>{f6151bd2-0dd5-4fa7-86e8-e974ccfabca0}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cmdutils.h" />
+    <ClInclude Include="ffmpeg.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

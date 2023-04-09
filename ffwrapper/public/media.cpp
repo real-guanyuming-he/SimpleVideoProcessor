@@ -10,6 +10,7 @@ extern "C"
 #include "media.h"
 #include "frame.h"
 #include "encoder.h"
+#include "decoder.h"
 
 #include <filesystem>
 
@@ -115,24 +116,22 @@ void ff::input_media::clear_streams()
 	vinds.clear(); ainds.clear(); sinds.clear();
 }
 
-ff::input_stream::input_stream(::AVStream* ps) : stream(ps)
-{
-	calculate_stream_duration();
-}
-
 ff::input_stream& ff::input_stream::operator=(const input_stream& right)
 {
 	stream::operator=(right);
-
-	duration = right.duration;
 
 	// TODO: insert return statement here
 	return *this;
 }
 
-void ff::input_stream::calculate_stream_duration()
+int64_t ff::input_stream::get_duration() const
 {
-	duration = ffhelpers::ff_time_in_base_to_seconds(p_stream->duration, p_stream->time_base);
+	return p_stream->duration;
+}
+
+double ff::input_stream::calculate_duration_in_sec() const
+{
+	return ffhelpers::ff_time_in_base_to_seconds(p_stream->duration, p_stream->time_base);
 }
 
 ff::stream& ff::stream::operator=(const stream& right)
@@ -142,27 +141,32 @@ ff::stream& ff::stream::operator=(const stream& right)
 	return *this;
 }
 
-void ff::stream::set_format(int fmt)
+void ff::output_stream::set_format(int fmt)
 {
 	p_stream->codecpar->format = fmt;
 }
 
-void ff::stream::set_time_base(int numerator, int denominator)
+ff::time ff::input_stream::get_time_base() const
+{
+	return p_stream->time_base;
+}
+
+void ff::output_stream::set_time_base(int numerator, int denominator)
 {
 	p_stream->time_base = AVRational{ numerator,denominator };
 }
 
-bool ff::stream::is_video() const
+bool ff::input_stream::is_video() const
 {
 	return p_stream ? p_stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO : false;
 }
 
-bool ff::stream::is_audio() const
+bool ff::input_stream::is_audio() const
 {
 	return p_stream ? p_stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO : false;
 }
 
-bool ff::stream::is_subtitle() const
+bool ff::input_stream::is_subtitle() const
 {
 	return p_stream ? p_stream->codecpar->codec_type == AVMEDIA_TYPE_SUBTITLE : false;
 }
@@ -170,15 +174,6 @@ bool ff::stream::is_subtitle() const
 ff::output_media::output_media(const std::string& fp)
 {
 	// See https://ffmpeg.org/doxygen/5.1/group__lavf__encoding.html#details
-
-	// get the extension name by finding the last occurence of '.'
-	size_t dot_pos = fp.find_last_of('.');
-	std::string extension_name;
-	if (dot_pos == std::string::npos)
-	{
-		ON_FF_ERROR("The filename does not have an extension")
-	}
-	extension_name = fp.substr(dot_pos + 1);
 
 	p_format_ctx = avformat_alloc_context();
 	if (!p_format_ctx)
@@ -219,7 +214,7 @@ ff::output_stream ff::output_media::add_stream(const encoder& enc)
 {
 	streams.emplace_back(enc, *this);
 
-	int ind = streams.size() - 1;
+	int ind = (int)streams.size() - 1;
 	switch (enc.get_codec()->type)
 	{
 	case AVMEDIA_TYPE_VIDEO:
@@ -236,29 +231,25 @@ ff::output_stream ff::output_media::add_stream(const encoder& enc)
 	return streams[ind];
 }
 
-void ff::output_media::write_file_header()
+ff::output_stream ff::output_media::add_stream(const input_stream& is)
 {
-	if (avformat_write_header(p_format_ctx, nullptr) < 0)
-	{
-		ON_FF_ERROR("Could not write the file header.")
-	}
-}
+	streams.emplace_back(is, *this);
 
-void ff::output_media::feed_packet(const packet& pkt)
-{
-	int ret = 0;
-	if ((ret = av_interleaved_write_frame(p_format_ctx, pkt)) < 0)
+	int ind = (int)streams.size() - 1;
+	switch (is->codecpar->codec_type)
 	{
-		ON_FF_ERROR_WITH_CODE("Could not feed a packet to the output file: ", ret)
+	case AVMEDIA_TYPE_VIDEO:
+		vinds.push_back(ind);
+		break;
+	case AVMEDIA_TYPE_AUDIO:
+		ainds.push_back(ind);
+		break;
+	case AVMEDIA_TYPE_SUBTITLE:
+		sinds.push_back(ind);
+		break;
 	}
-}
 
-void ff::output_media::finalize()
-{
-	if (av_write_trailer(p_format_ctx) != 0)
-	{
-		ON_FF_ERROR("Could not finalize the output file.")
-	}
+	return streams[ind];
 }
 
 bool ff::output_media::extension_compare(const std::string& ext1, const std::string& ext2)
@@ -279,6 +270,87 @@ bool ff::output_media::extension_compare(const std::string& ext1, const std::str
 	return true;
 }
 
+ff::output_stream::output_stream(input_stream i, const output_media& f):
+	stream(avformat_new_stream(f.get_format_ctx(), nullptr))
+{
+	if (!p_stream)
+	{
+		ON_FF_ERROR("Could not create an output stream.")
+	}
+
+	/*
+	* It is advised to manually initialize only the relevant fields in AVCodecParameters, 
+	* rather than using avcodec_parameters_copy() during remuxing: 
+	* there is no guarantee that the codec context values remain valid for both input and output format contexts.
+	*/
+
+	p_stream->time_base = i->time_base;
+
+	int ret = 0;
+	if ((ret = avcodec_parameters_copy(p_stream->codecpar, i->codecpar)) < 0)
+	{
+		ON_FF_ERROR_WITH_CODE("Could not copy codec parameters", ret);
+	}
+	// Don't know why but set this anyway.
+	p_stream->codecpar->codec_tag = 0;	
+
+	//auto par = p_stream->codecpar;
+	//auto ipar = i->codecpar;
+
+	//ffhelpers::codec_parameters_reset(par);
+
+	//par->codec_id = ipar->codec_id;
+	//par->codec_type = ipar->codec_type;
+	//par->bit_rate = ipar->bit_rate;
+	//par->bits_per_coded_sample = ipar->bits_per_coded_sample;
+	//par->bits_per_raw_sample = ipar->bits_per_raw_sample;
+	//par->profile = ipar->profile;
+	//par->level = ipar->level;
+
+
+
+	//int err = 0;
+	//switch (par->codec_type)
+	//{
+	//case AVMEDIA_TYPE_VIDEO:
+	//	par->format = ipar->format;
+	//	par->width = ipar->width;
+	//	par->height = ipar->height;
+
+	//	par->sample_aspect_ratio = ipar->sample_aspect_ratio;
+	//	par->field_order = ipar->field_order;
+	//	par->color_range = ipar->color_range;
+	//	par->color_primaries = ipar->color_primaries;
+	//	par->color_trc = ipar->color_trc;
+	//	par->color_space = ipar->color_space;																																																																															
+	//	par->chroma_location = ipar->chroma_location;
+	//	par->video_delay = ipar->video_delay;
+	//	break;
+
+	//case AVMEDIA_TYPE_AUDIO:
+	//	par->format = ipar->format;
+	//	if ((err = av_channel_layout_copy(&par->ch_layout, &ipar->ch_layout)) < 0)
+	//	{
+	//		ON_FF_ERROR_WITH_CODE("Could not copy channel layout", err);
+	//	}
+	//	par->sample_rate = ipar->sample_rate;
+	//	par->block_align = ipar->block_align;
+	//	par->frame_size = ipar->frame_size;
+	//	par->initial_padding = ipar->initial_padding;
+	//	par->trailing_padding = ipar->trailing_padding;
+	//	par->seek_preroll = ipar->seek_preroll;
+	//	break;
+
+	//case AVMEDIA_TYPE_SUBTITLE:
+	//	par->width = ipar->width;
+	//	par->height = ipar->height;
+	//	break;
+
+	//default:
+	//	par->codec_id = ipar->codec_id;
+	//}
+}
+
 ff::output_stream::output_stream(const class encoder& enc, const class output_media& f) :
 	stream(avformat_new_stream(f.get_format_ctx(), nullptr))
 {
@@ -297,18 +369,4 @@ ff::output_stream::output_stream(const class encoder& enc, const class output_me
 	{
 		ON_FF_ERROR_WITH_CODE("Could not copy info from the encoder to the stream.", ret);
 	}
-
-	/*p_stream->time_base = enc_ctx->time_base;
-	switch (p_stream->codecpar->codec_type)
-	{
-	case AVMEDIA_TYPE_VIDEO:
-		p_stream->codecpar->width = enc_ctx->width;
-		p_stream->codecpar->height = enc_ctx->height;
-		p_stream->codecpar->format = enc_ctx->pix_fmt;
-		break;
-	case AVMEDIA_TYPE_AUDIO:
-		av_channel_layout_copy(&p_stream->codecpar->ch_layout, &enc_ctx->ch_layout);
-		p_stream->codecpar->sample_rate = enc_ctx->sample_rate;
-		p_stream->codecpar->format = enc_ctx->sample_fmt;
-	}*/
 }

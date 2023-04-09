@@ -1,9 +1,11 @@
 extern "C"
 {
+#include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 }
 
 #include "frame.h"
+#include "media.h"
 
 #include "../private/ff_helpers.h"
 
@@ -11,9 +13,16 @@ extern "C"
 
 ff::frame::frame(const frame& other)
 {
-	allocate();
+	if (other.is_valid())
+	{
+		allocate();
 
-	av_frame_copy_all(buffer, other.buffer);
+		av_frame_copy_all(buffer, other.buffer);
+	}
+	else
+	{
+		buffer = nullptr;
+	}
 }
 
 ff::frame::~frame()
@@ -84,10 +93,57 @@ void ff::frame::av_frame_copy_all(::AVFrame* dst, ::AVFrame* src)
 	}
 }
 
+ff::packet::packet(const packet& other) 
+{
+	if (other.is_valid())
+	{
+		buffer = av_packet_clone(other.buffer);
+		if (!buffer)
+		{
+			ON_FF_ERROR("Could not clone AVPacket.")
+		}
+	}
+	else
+	{
+		buffer = nullptr;
+	}
+}
+
+ff::packet& ff::packet::operator=(const packet& right)
+{
+	if (right.is_valid())
+	{
+		if (is_valid()) // if buffer is already created
+		{
+			av_packet_unref(buffer);
+
+			int err = 0;
+			if ((err = av_packet_ref(buffer, right.buffer)) < 0)
+			{
+				ON_FF_ERROR_WITH_CODE("Could not ref AVPacket", err)
+			}
+		}
+		else // if buffer is not created
+		{
+			buffer = av_packet_clone(right.buffer);
+			if (!buffer)
+			{
+				ON_FF_ERROR("Could not clone AVPacket.")
+			}
+		}
+	}
+	else
+	{
+		ffhelpers::safely_free_packet(&buffer);
+	}
+
+	return *this;
+}
+
 void ff::packet::allocate()
 {
-	pkt = av_packet_alloc();
-	if (!pkt)
+	buffer = av_packet_alloc();
+	if (!buffer)
 	{
 		ON_FF_ERROR("Could not alloc packet.")
 	}
@@ -95,10 +151,15 @@ void ff::packet::allocate()
 
 void ff::packet::unref()
 {
-	av_packet_unref(pkt);
+	av_packet_unref(buffer);
 }
 
 void ff::packet::destroy()
 {
-	ffhelpers::safely_free_packet(&pkt);
+	ffhelpers::safely_free_packet(&buffer);
+}
+
+void ff::packet::rescale_time(const stream& s1, const stream& s2)
+{
+	av_packet_rescale_ts(buffer, s1->time_base, s2->time_base);
 }

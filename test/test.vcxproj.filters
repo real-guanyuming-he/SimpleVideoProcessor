@@ -13,13 +13,27 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\ffmpeg">
+      <UniqueIdentifier>{b4e8d690-28dc-4b49-bb42-b6dc27bfce3b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="transcode.cpp">
+    <ClCompile Include="remux.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ffmpeg.c">
+      <Filter>Source Files\ffmpeg</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ffmpeg.h">
+      <Filter>Source Files\ffmpeg</Filter>
+    </ClInclude>
+    <ClInclude Include="cmdutils.h">
+      <Filter>Source Files\ffmpeg</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

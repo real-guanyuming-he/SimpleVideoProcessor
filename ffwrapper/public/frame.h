@@ -7,6 +7,9 @@ struct AVChannelLayout;
 namespace ff
 {
 	// A buffer holding a decoded frame.
+	// Has two levels of storage. The first level is the frame itself, which also has to be allocated (will be done by the constructors)
+	// The second level is the data is holds, which is created by one of the create_xxx_buffer() methods.
+	// On destruction, both levels of storage will be destroyed.
 	struct frame
 	{
 	public:
@@ -16,7 +19,14 @@ namespace ff
 		frame(struct ::AVFrame* f) : buffer(f) {}
 		// throws std::runtime_error
 		frame(const frame& other);
-		frame(frame&& other) noexcept : buffer(other.buffer) { other.buffer = nullptr; }
+		frame(frame&& other) noexcept : buffer(other.buffer) { other.relinquish_ownership(); }
+
+		inline frame& operator=(frame&& right) noexcept
+		{
+			buffer = right.buffer;
+			right.relinquish_ownership();
+			return *this;
+		}
 
 		~frame();
 
@@ -24,7 +34,7 @@ namespace ff
 		AVFrame* operator->() const { return buffer; }
 
 	public:
-		bool is_allocated() const { return nullptr != buffer; }
+		bool is_valid() const { return nullptr != buffer; }
 		// @returns if it has a buffer so that it can contain a frame
 		bool has_a_buffer() const;
 
@@ -53,54 +63,68 @@ namespace ff
 		struct ::AVFrame* buffer = nullptr;
 
 		/*
-		* Relinquishes the ownership to the buffer.
+		* Relinquishes the ownership to the frame.
 		*/
 		void relinquish_ownership() { buffer = nullptr; }
 
-	private:
+	public:
 		// The same as av_frame_copy_props + av_frame_copy
 		// @throws std::runtime_error on failure
-		void av_frame_copy_all(struct ::AVFrame* dst, struct ::AVFrame* src);
+		static void av_frame_copy_all(struct ::AVFrame* dst, struct ::AVFrame* src);
 	};
 
 	// An encoded packet.
+	// Has two levels of storage. The first level is the frame itself, which also has to be allocated (will be done by the constructors)
+	// The second level is the data is holds. The data is reference-counted. When it's destroyed, then the data will be unreferenced once.
 	struct packet
 	{
 	public:
 		// Allocates a clean frame
-		packet() : pkt(nullptr) { allocate(); }
+		packet() : buffer(nullptr) { allocate(); }
 		// Takes the ownership of f
-		packet(struct ::AVPacket* p) : pkt(p) {}
-		// I can't find a ffmpeg function to copy the data of a AVPacket.
-		packet(const packet& other) = delete;
-		packet(packet&& other) noexcept : pkt(other.pkt) { other.pkt = nullptr; }
+		packet(struct ::AVPacket* p) : buffer(p) {}
+		packet(const packet& other);
+		packet(packet&& other) noexcept : buffer(other.buffer) { other.relinquish_ownership(); }
+
+		packet& operator=(const packet& right);
+		inline packet& operator=(packet&& right) noexcept
+		{
+			buffer = right.buffer;
+			right.relinquish_ownership();
+			return *this;
+		}
 
 		~packet() { destroy(); }
 
-		operator AVPacket* () const { return pkt; }
-		AVPacket* operator->() const { return pkt; }
+		operator AVPacket* () const { return buffer; }
+		AVPacket* operator->() const { return buffer; }
 
 	public:
-		bool is_allocated() const { return nullptr != pkt; }
+		bool is_valid() const { return nullptr != buffer; }
 
 		// Allocates a clean AVPacket, but not any buffer.
 		// @throws std::runtime_error on failure
 		void allocate();
 
-		// Clears the data it holds but does not destroy it.
+		// Unrefs its data it holds but does not destroy it.
 		void unref();
 
-		// Destroy the packet and delete everything it stores
+		// Destroy the packet and unref its data.
 		void destroy();
 
 	public:
-		struct ::AVPacket* pkt = nullptr;
+		struct ::AVPacket* buffer = nullptr;
 
 		/*
 		* Relinquishes the ownership to packet
 		*/
-		void relinquish_ownership() { pkt = nullptr; }
+		void relinquish_ownership() { buffer = nullptr; }
 
-	private:
+	public:
+		/*
+		* Assumes that its time fields like pts and dts are in the time base of s1,
+		* then the method scales them to be in the time base of s2.
+		*/
+		void rescale_time(const struct stream& s1, const struct stream& s2);
 	};
 }

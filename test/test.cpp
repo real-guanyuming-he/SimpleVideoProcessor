@@ -22,11 +22,14 @@ extern "C"
 #include <libswscale/swscale.h>
 }
 
-constexpr auto input_file_name = "D:\\GameRec\\Doom Eternal\\lv1.mp4";;
+constexpr auto input_file_name = "D:\\GameRec\\Doom Eternal\\lv1.mp4";
+constexpr auto remux_output_file_name = "remux_output.mp4";
+
+void remux(const char* in_file, const char* out_file, double start_time);
 
 int main()
 {
-    try
+    /*try
     {
         ff::input_media input(input_file_name);
         ff::input_stream ivs = input.get_stream(input.get_video_i(0));
@@ -35,17 +38,13 @@ int main()
 		ff::output_media output(std::string("output") + ".avi");
 
         ff::input_decoder video_decoder(input, input.get_video_i(0));
-		video_decoder.create(input);
 
 		ff::input_decoder audio_decoder(input, input.get_audio_i(0));
-		audio_decoder.create(input);
 
 		ff::transcode_encoder video_encoder(video_decoder, output.get_deduced_codec_id(AVMEDIA_TYPE_VIDEO));
-		video_encoder.create(output);
 		auto pix_fmt = video_encoder.get_current_pixel_format();
 
 		ff::transcode_encoder audio_encoder(audio_decoder, output.get_deduced_codec_id(AVMEDIA_TYPE_AUDIO));
-		audio_encoder.create(output);
 
 		ff::frame vid_frame;
 		ff::frame aud_frame;
@@ -189,7 +188,9 @@ int main()
     catch (const std::runtime_error& e)
     {
         std::cout << e.what() << std::endl;
-    }
+    }*/
+
+	remux(input_file_name, remux_output_file_name, 1200.0);
 
     return 0;
 }

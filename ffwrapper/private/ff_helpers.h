@@ -15,6 +15,7 @@ struct AVCodecContext;
 struct SwsContext;
 struct SwrContext;
 struct AVAudioFifo;
+struct AVCodecParameters;
 
 #include <string>
 
@@ -41,6 +42,7 @@ namespace ffhelpers
 	void safely_free_swr_context(::SwrContext** swr_ctx);
 
 	void safely_free_audio_fifo(::AVAudioFifo** fifo);
+#pragma endregion
 
 	// Translates the ffmpeg c api error code into string.
 	std::string ff_translate_error_code(int err_code);
@@ -48,6 +50,7 @@ namespace ffhelpers
 #define ON_FF_ERROR(msg) throw std::runtime_error(msg);
 #define ON_FF_ERROR_WITH_CODE(msg, code) ON_FF_ERROR(std::string(msg) + " " + ffhelpers::ff_translate_error_code(code))
 
-#pragma endregion
+	// Copied from https://ffmpeg.org/doxygen/5.1/codec__par_8c_source.html#l00031
+	void codec_parameters_reset(::AVCodecParameters* par);
 }
 
