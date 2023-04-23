@@ -1,0 +1,8 @@
+UI elements use the style of the Windows 11 settings app. Each page is a list of (setting) entries.
+
+
+Clip page: time selection can be put in the entry body while the image preview of the time is shown in the expander.
+
+Let the user create a series of time points as clip points. Two different clip points define a clip. Overlapping clips can be allowed, as (considering that a seeking is done in one direction) it is essentially the problem of schedualling tasks on different computers, which can be solved by a simple Greedy approach.
+
+As a trivial example, if the user wants to clip a video so that he gets whatever is behind 10:00. Then he creates a clip point at 10:00 and delete the first clip.

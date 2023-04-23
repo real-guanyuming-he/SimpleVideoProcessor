@@ -1,0 +1,50 @@
+<!-- Copyright (c) Microsoft Corporation and Contributors. -->
+<!-- Licensed under the MIT License. -->
+
+<Application
+    x:Class="SimpleVideoProcessorCSharp.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SimpleVideoProcessorCSharp">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!-- Other merged dictionaries here -->
+            </ResourceDictionary.MergedDictionaries>
+            <!-- Other app resources here -->
+
+            <!--Theme colors-->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="LevanderControlBackground" Color="#FFEECEFF"/>
+                    <SolidColorBrush x:Key="LevanderPageBackground" Color="#FFFEF6FF"/>
+                    <SolidColorBrush x:Key="LevanderPrimary" Color="#FF8961CC"/>
+                    <SolidColorBrush x:Key="LevanderLightPrimary" Color="#FFD5C3F6"/>
+                    <SolidColorBrush x:Key="LevanderDarkPrimary" Color="#FF422486"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="LevanderControlBackground" Color="#FFEECEFF"/>
+                    <SolidColorBrush x:Key="LevanderPageBackground" Color="#FFFEF6FF"/>
+                    <SolidColorBrush x:Key="LevanderPrimary" Color="#FF8961CC"/>
+                    <SolidColorBrush x:Key="LevanderLightPrimary" Color="#FFD5C3F6"/>
+                    <SolidColorBrush x:Key="LevanderDarkPrimary" Color="#FF422486"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="LevanderControlBackground" Color="#FF64576B"/>
+                    <SolidColorBrush x:Key="LevanderPageBackground" Color="#FF262738"/>
+                    <SolidColorBrush x:Key="LevanderPrimary" Color="#FF8961CC"/>
+                    <SolidColorBrush x:Key="LevanderDarkPrimary" Color="#FFD5C3F6"/>
+                    <SolidColorBrush x:Key="LevanderLightPrimary" Color="#FF422486"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <CornerRadius x:Key="PageEntryCornerRadiusThickness">4</CornerRadius>
+            <Thickness x:Key="PageEntryMarginThickness">12,8,12,0</Thickness>
+
+            <StaticResource x:Key="PageEntryCornerRadius" ResourceKey="PageEntryCornerRadiusThickness"/>
+            <StaticResource x:Key="PageEntryMargin" ResourceKey="PageEntryMarginThickness"/>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -4,6 +4,8 @@ struct AVFrame;
 struct AVPacket;
 struct AVChannelLayout;
 
+#include "ff_time.h"
+
 namespace ff
 {
 	// A buffer holding a decoded frame.
@@ -126,5 +128,11 @@ namespace ff
 		* then the method scales them to be in the time base of s2.
 		*/
 		void rescale_time(const struct stream& s1, const struct stream& s2);
+
+		/*
+		* Assumes that its time fields like pts and dts are in the time base of t1,
+		* then the method scales them to be in the time base of t2.
+		*/
+		void rescale_time(ff::time t1, ff::time t2);
 	};
 }

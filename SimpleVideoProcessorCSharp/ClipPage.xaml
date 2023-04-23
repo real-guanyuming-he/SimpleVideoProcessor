@@ -1,0 +1,70 @@
+<!-- Copyright (c) Microsoft Corporation and Contributors. -->
+<!-- Licensed under the MIT License. -->
+
+<Page
+    x:Class="SimpleVideoProcessorCSharp.ClipPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SimpleVideoProcessorCSharp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource LevanderPageBackground}">
+
+    <!--Margin: 56 is the horizontal space of the navigation view header-->
+    <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            BorderThickness="3"
+            Margin="56,12,56,12"
+            CornerRadius="8"
+            BorderBrush="{ThemeResource LevanderLightPrimary}">
+        <ScrollViewer
+            ZoomMode="Disabled"
+            HorizontalScrollMode="Disabled" VerticalScrollMode="Enabled"
+            VerticalScrollBarVisibility="Auto"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel Orientation="Vertical"
+                        Spacing="8">
+                <local:PageEntry 
+                    x:Name="EntryTest"
+                    CornerRadius="{StaticResource PageEntryCornerRadius}"
+                    Margin="{StaticResource PageEntryMarginThickness}"
+                    Header="Test"
+                    Description="This is a test entry">
+                    <local:PageEntry.Content>
+                        <Button 
+                            x:Name="OpenVideoButton"
+                            Content="A Button"/>
+                    </local:PageEntry.Content>
+
+                    <local:PageEntry.Icon>
+                        <SymbolIcon Symbol="Accept"/>
+                    </local:PageEntry.Icon>
+                </local:PageEntry>
+
+                <Expander
+                    HorizontalAlignment="Stretch"
+                    CornerRadius="{StaticResource PageEntryCornerRadius}"
+                    Margin="{StaticResource PageEntryMarginThickness}">
+                    <Expander.Header>
+                        <local:PageEntry 
+                            x:Name="EntryTestExpander"
+                            Header="Another Test"
+                            Description="Test entry inside an expander">
+                            <local:PageEntry.Content>
+                                <Button Content="Another"/>
+                            </local:PageEntry.Content>
+
+                            <local:PageEntry.Icon>
+                                <SymbolIcon Symbol="Add"/>
+                            </local:PageEntry.Icon>
+                        </local:PageEntry>
+                    </Expander.Header>
+                    
+                    <Expander.Content>
+                        <Button Content="Expanded" />
+                    </Expander.Content>
+                </Expander>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</Page>

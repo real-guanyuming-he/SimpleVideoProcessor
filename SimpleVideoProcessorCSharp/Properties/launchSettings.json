@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SimpleVideoProcessorCSharp (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "SimpleVideoProcessorCSharp (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

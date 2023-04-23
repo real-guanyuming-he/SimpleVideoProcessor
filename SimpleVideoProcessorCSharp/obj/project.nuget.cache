@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "dgSpecHash": "FUC7eb+qLrXDC9PdwXX6oS08cPQ6rOaqQG57SojfViNT/9agTog533Y6apMxJ8DYuv3OmafUDydm8Zpf91vRBA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Guany\\source\\repos\\SimpleVideoProcessor\\SimpleVideoProcessorCSharp\\SimpleVideoProcessorCSharp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages\\microsoft.windows.sdk.buildtools\\10.0.22621.755\\microsoft.windows.sdk.buildtools.10.0.22621.755.nupkg.sha512",
+    "C:\\Users\\Guany\\.nuget\\packages\\microsoft.windowsappsdk\\1.2.221109.1\\microsoft.windowsappsdk.1.2.221109.1.nupkg.sha512",
+    "C:\\Users\\Guany\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\6.0.14\\microsoft.netcore.app.runtime.win-x86.6.0.14.nupkg.sha512",
+    "C:\\Users\\Guany\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.19041.28\\microsoft.windows.sdk.net.ref.10.0.19041.28.nupkg.sha512",
+    "C:\\Users\\Guany\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\6.0.14\\microsoft.aspnetcore.app.runtime.win-x86.6.0.14.nupkg.sha512",
+    "C:\\Users\\Guany\\.nuget\\packages\\microsoft.netcore.app.runtime.win-arm64\\6.0.14\\microsoft.netcore.app.runtime.win-arm64.6.0.14.nupkg.sha512",
+    "C:\\Users\\Guany\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\6.0.14\\microsoft.aspnetcore.app.runtime.win-x64.6.0.14.nupkg.sha512",
+    "C:\\Users\\Guany\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-arm64\\6.0.14\\microsoft.windowsdesktop.app.runtime.win-arm64.6.0.14.nupkg.sha512",
+    "C:\\Users\\Guany\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\6.0.14\\microsoft.windowsdesktop.app.runtime.win-x64.6.0.14.nupkg.sha512",
+    "C:\\Users\\Guany\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-arm64\\6.0.14\\microsoft.aspnetcore.app.runtime.win-arm64.6.0.14.nupkg.sha512",
+    "C:\\Users\\Guany\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\6.0.14\\microsoft.netcore.app.runtime.win-x64.6.0.14.nupkg.sha512",
+    "C:\\Users\\Guany\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\6.0.14\\microsoft.windowsdesktop.app.runtime.win-x86.6.0.14.nupkg.sha512"
+  ],
+  "logs": []
+}

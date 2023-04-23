@@ -163,3 +163,8 @@ void ff::packet::rescale_time(const stream& s1, const stream& s2)
 {
 	av_packet_rescale_ts(buffer, s1->time_base, s2->time_base);
 }
+
+void ff::packet::rescale_time(ff::time t1, ff::time t2)
+{
+	av_packet_rescale_ts(buffer, t1, t2);
+}
