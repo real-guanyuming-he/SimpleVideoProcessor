@@ -150,15 +150,22 @@ namespace ff
 		int get_subtitle_i(int i) const { return sinds[i]; }
 
 		int num_streams() const { return (int)streams.size(); }
-		input_stream get_stream(int i) const { return input_stream(streams[i]); }
+		input_stream get_stream(int i) const { return streams[i]; }
+		const auto& get_streams() const { return streams; }
 #pragma endregion
+
+		/*
+		* @returns the extension name of the file, with the . prefixed.
+		* An empty string if the input is not linked to any file.
+		*/
+		std::string get_extension_name() const;
 
 	private:
 		std::string filepath;
 
 #pragma region streams
 		// each index in the vector is the index of the stream in the container.
-		std::vector<struct ::AVStream*> streams;
+		std::vector<input_stream> streams;
 
 		// for categorization, store the indices here separately for v/a/s
 		// The first index in each vector is the "best" stream among those streams.

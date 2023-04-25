@@ -116,6 +116,20 @@ void ff::input_media::clear_streams()
 	vinds.clear(); ainds.clear(); sinds.clear();
 }
 
+std::string ff::input_media::get_extension_name() const
+{
+	auto index = filepath.find_last_of('.');
+	
+	if (index == std::string::npos)
+	{
+		return std::string();
+	}
+	else
+	{
+		return filepath.substr(index);
+	}
+}
+
 ff::input_stream& ff::input_stream::operator=(const input_stream& right)
 {
 	stream::operator=(right);

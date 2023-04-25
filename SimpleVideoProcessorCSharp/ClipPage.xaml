@@ -24,24 +24,49 @@
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <StackPanel Orientation="Vertical"
                         Spacing="8">
-                <local:PageEntry 
-                    x:Name="EntryTest"
+                <Expander
+                    HorizontalAlignment="Stretch"
                     CornerRadius="{StaticResource PageEntryCornerRadius}"
-                    Margin="{StaticResource PageEntryMarginThickness}"
-                    Header="Test"
-                    Description="This is a test entry">
-                    <local:PageEntry.Content>
-                        <Button 
-                            x:Name="OpenVideoButton"
-                            Content="A Button"/>
-                    </local:PageEntry.Content>
+                    Margin="{StaticResource PageEntryMarginThickness}">
+                    <Expander.Header>
+                        <local:PageEntry 
+                            x:Name="OpenVideoEntry"
+                            Header="Open a video file"
+                            Description="Please open a video file to proceed.">
+                            <local:PageEntry.Content>
+                                <StackPanel 
+                                    Orientation="Horizontal"
+                                    Spacing="12">
+                                    <Button 
+                                        x:Name="OpenVideoButton"
+                                        Content="Open Video"
+                                        Click="OpenVideoButton_Click"
+                                    />
+                                    <Button 
+                                        x:Name="ClearVideoButton"
+                                        Content="Clear Video"
+                                        Click="ClearVideoButton_Click"
+                                    />
+                                </StackPanel>
+                            </local:PageEntry.Content>
 
-                    <local:PageEntry.Icon>
-                        <SymbolIcon Symbol="Accept"/>
-                    </local:PageEntry.Icon>
-                </local:PageEntry>
+                            <local:PageEntry.Icon>
+                                <FontIcon Glyph="&#xE8E5;" />
+                            </local:PageEntry.Icon>
+                        </local:PageEntry>
+                    </Expander.Header>
+
+                    <Expander.Content>
+                        <TextBlock 
+                            x:Name="VideoNameTextBlock"
+                            Text="No video file is opened." 
+                            FontWeight="Bold"/>
+                    </Expander.Content>
+                </Expander>
 
                 <Expander
+                    x:Name="ClipTimeExpander"
+                    IsEnabled="False"
                     HorizontalAlignment="Stretch"
                     CornerRadius="{StaticResource PageEntryCornerRadius}"
                     Margin="{StaticResource PageEntryMarginThickness}">
@@ -59,7 +84,7 @@
                             </local:PageEntry.Icon>
                         </local:PageEntry>
                     </Expander.Header>
-                    
+
                     <Expander.Content>
                         <Button Content="Expanded" />
                     </Expander.Content>

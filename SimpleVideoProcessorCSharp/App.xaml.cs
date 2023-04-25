@@ -49,5 +49,7 @@ namespace SimpleVideoProcessorCSharp
         }
 
         private Window m_window;
+        // Expose it as a property so controls in the main windows can access the window
+        public Window Window => m_window;
     }
 }
