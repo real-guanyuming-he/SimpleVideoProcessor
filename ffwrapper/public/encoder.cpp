@@ -200,6 +200,8 @@ void ff::encoder::fill_encoder_info(const decoder& dec, const output_media& m)
 		// We must use frame_rate or sample_rate to set time_base of the encoder then.
 		bool time_base_set = false;
 
+		codec_ctx->bit_rate = dec_ctx->bit_rate;
+
 		//if (dec_ctx->bit_rate != 0)
 		//{
 		//	 codec_ctx->bit_rate = dec_ctx->bit_rate;
