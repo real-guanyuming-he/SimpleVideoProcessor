@@ -35,6 +35,7 @@
     <ClInclude Include="public\interfaces\src_sink.h" />
     <ClInclude Include="public\media.h" />
     <ClInclude Include="public\muxer.h" />
+    <ClInclude Include="public\packet_retimer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\ff_helpers.cpp" />
@@ -50,6 +51,7 @@
     <ClCompile Include="public\image_converter.cpp" />
     <ClCompile Include="public\media.cpp" />
     <ClCompile Include="public\muxer.cpp" />
+    <ClCompile Include="public\packet_retimer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

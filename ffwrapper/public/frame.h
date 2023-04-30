@@ -46,6 +46,9 @@ namespace ff
 		// Destroy the frame and delete everything it stores
 		void destroy();
 
+		// unrefs the data it owns but does not destroy the frame.
+		void unref();
+
 		/*
 		* Creates a buffer large enough for containing a video frame.
 		* 
@@ -108,7 +111,7 @@ namespace ff
 		// @throws std::runtime_error on failure
 		void allocate();
 
-		// Unrefs its data it holds but does not destroy it.
+		// Unrefs its data it holds but does not destroy the packet itself.
 		void unref();
 
 		// Destroy the packet and unref its data.

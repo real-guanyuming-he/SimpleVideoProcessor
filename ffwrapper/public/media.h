@@ -29,6 +29,12 @@ namespace ff
 
 		stream& operator=(const stream& right);
 
+		ff::time get_time_base() const;
+
+		bool is_video() const;
+		bool is_audio() const;
+		bool is_subtitle() const;
+
 		struct ::AVStream* operator->() const { return p_stream; }
 
 		// It's just a reference to it. The class does not own the stream in any way.
@@ -43,12 +49,6 @@ namespace ff
 		input_stream(const input_stream& other) : stream(other) {}
 
 		input_stream& operator=(const input_stream& right);
-
-		ff::time get_time_base() const;
-
-		bool is_video() const;
-		bool is_audio() const;
-		bool is_subtitle() const;
 
 		// @returns its duration in its time base units
 		int64_t get_duration() const;

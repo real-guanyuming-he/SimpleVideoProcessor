@@ -6,6 +6,7 @@ extern "C"
 
 #include "media.h"
 #include "frame.h"
+#include "demuxer.h"
 #include "encoder.h"
 #include "decoder.h"
 #include "../private/ff_helpers.h"
@@ -17,11 +18,25 @@ extern "C"
 ff::encoder::encoder(const char* name)
 {
 	codec = avcodec_find_encoder_by_name(name);
+
+	// Allocate a codec context for the encoder 
+	codec_ctx = avcodec_alloc_context3(codec);
+	if (!codec_ctx)
+	{
+		ON_FF_ERROR("Failed to allocate the encoder context.")
+	}
 }
 
 ff::encoder::encoder(int ID)
 {
 	codec = avcodec_find_encoder((AVCodecID)ID);
+
+	// Allocate a codec context for the encoder 
+	codec_ctx = avcodec_alloc_context3(codec);
+	if (!codec_ctx)
+	{
+		ON_FF_ERROR("Failed to allocate the encoder context.")
+	}
 }
 
 bool ff::encoder::try_feed(ff::frame& frame)
@@ -33,6 +48,7 @@ bool ff::encoder::try_feed(ff::frame& frame)
 		switch (ret)
 		{
 		case AVERROR_EOF:
+			// Intentionally no break.
 		case AVERROR(EAGAIN):
 			return false;
 		default:
@@ -58,6 +74,7 @@ ff::packet ff::encoder::try_get_one()
 		{
 		case AVERROR_EOF:
 			eof_reached = true;
+			// Intentionally no break.
 		case AVERROR(EAGAIN):
 			return ff::packet(nullptr);
 		default:
@@ -172,6 +189,106 @@ int ff::encoder::get_required_number_of_samples_per_channel() const
 	return codec_ctx->frame_size;
 }
 
+void ff::encoder::fill_encoder_info(const decoder& dec, const output_media& m)
+{
+	// Copy infomation from the decoder to encoder.
+	// If some part of the info is not supported in the encoder, we choose from the encoder's supported formats.
+	{
+		auto dec_ctx = dec.get_codec_ctx();
+
+		// The time_base of decoders is deprecated, but for encoding it must be set...
+		// We must use frame_rate or sample_rate to set time_base of the encoder then.
+		bool time_base_set = false;
+
+		//if (dec_ctx->bit_rate != 0)
+		//{
+		//	 codec_ctx->bit_rate = dec_ctx->bit_rate;
+		//}
+		switch (codec->type)
+		{
+		case AVMEDIA_TYPE_VIDEO:
+			codec_ctx->pix_fmt = is_pixel_format_supported(dec_ctx->pix_fmt) ?
+				dec_ctx->pix_fmt : (AVPixelFormat)get_desired_pixel_format();
+			codec_ctx->width = dec_ctx->width;
+			codec_ctx->height = dec_ctx->height;
+
+			// if the frame rate is known, then set the time base accordingly.
+			if (dec_ctx->framerate.num != 0 && dec_ctx->framerate.den != 0) 
+			{
+				codec_ctx->time_base.num = dec_ctx->framerate.den;
+				codec_ctx->time_base.den = dec_ctx->framerate.num;
+				time_base_set = true;
+			}
+			else if (codec->id == AV_CODEC_ID_H264)
+			{
+				// For some unknown reason, H264 encoder on Windows does not support a time base
+				// smaller than 1/172. Have to ensure that it is no smaller than that.
+				codec_ctx->time_base.num = 1;
+				codec_ctx->time_base.den = 120;
+				time_base_set = true;
+			}
+			else
+			{
+				codec_ctx->time_base = ffhelpers::ff_common_video_time_base;
+				time_base_set = true;
+			}
+
+			break;
+
+		case AVMEDIA_TYPE_AUDIO:
+			codec_ctx->sample_fmt = is_audio_sample_format_supported(dec_ctx->sample_fmt) ?
+				dec_ctx->sample_fmt : (AVSampleFormat)get_desired_audio_sample_format();
+			codec_ctx->sample_rate = is_audio_sample_rate_supported(dec_ctx->sample_rate) ?
+				dec_ctx->sample_rate : get_best_audio_sample_rate();
+			if (is_audio_channel_layout_supported(&dec_ctx->ch_layout))
+			{
+				int err = 0;
+				if ((err = av_channel_layout_copy(&codec_ctx->ch_layout, &dec_ctx->ch_layout)) < 0)
+				{
+					ON_FF_ERROR_WITH_CODE("Could not copy channel layout.", err);
+				}
+			}
+			else
+			{
+				get_best_audio_channel(&codec_ctx->ch_layout);
+			}
+
+			/* Some container formats (like MP4) require global headers to be present.
+			* Mark the encoder so that it behaves accordingly. */
+			if (m.get_format_ctx()->oformat->flags & AVFMT_GLOBALHEADER)
+			{
+				codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+			}
+
+			// if the sample rate is known, then set the time base accordingly.
+			if (dec_ctx->sample_rate != 0)
+			{
+				codec_ctx->time_base.num = 1;
+				codec_ctx->time_base.den = dec_ctx->sample_rate;
+				time_base_set = true;
+			}
+			else
+			{
+				codec_ctx->time_base = ffhelpers::ff_common_audio_time_base;
+				time_base_set = true;
+			}
+
+			break;
+
+		default:
+			break;
+		}
+
+		// if time base is not set because of unavailble info, then use the default one
+		if (!time_base_set) 
+		{		
+			codec_ctx->time_base = ffhelpers::ff_global_time_base;
+		}
+	}
+
+	//avcodec_parameters_free(&par);
+}
+
 bool ff::encoder::is_pixel_format_supported(int fmt) const
 {
 	if (!codec->pix_fmts) // unknown
@@ -276,109 +393,28 @@ bool ff::encoder::is_audio_setting_supported(const audio_info&info) const
 ff::transcode_encoder::transcode_encoder(const decoder& d, const output_media& m, const char* name) : encoder(name)
 {
 	fill_encoder_info(d, m);
+	create();
 }
 
 ff::transcode_encoder::transcode_encoder(const decoder& d, const output_media& m, int ID) : encoder(ID)
 {
 	fill_encoder_info(d, m);
+	create();
 }
 
-void ff::transcode_encoder::fill_encoder_info(const decoder& dec, const output_media& m)
+ff::direct_encoder::direct_encoder(const decoder& d, const output_media& m, const ff::input_stream& ins) :
+	encoder(d.get_codec()->id)
 {
-	/* Allocate a codec context for the encoder */
-	codec_ctx = avcodec_alloc_context3(codec);
-	if (!codec_ctx)
+	fill_encoder_info(d, m);
+
+	// As commented in AVCodecContext,
+	// time_base is deprecated in encoding.
+	// framerate is used instead.
+	if (ins->r_frame_rate.den != 0 && ins->r_frame_rate.num != 0)
 	{
-		ON_FF_ERROR("Failed to allocate the encoder context.")
+		codec_ctx->time_base.num = ins->r_frame_rate.den;
+		codec_ctx->time_base.den = ins->r_frame_rate.num;
 	}
 
-	// Copy infomation from the decoder to encoder.
-	// If some part of the info is unavailble, we decide from the encoder's supported formats.
-	{
-		auto dec_ctx = dec.get_codec_ctx();
-
-		// If the time base is set because of a rate change, then we will not use the decoder's time base.
-		bool time_base_set = false;
-
-		//if (dec_ctx->bit_rate != 0)
-		//{
-		//	 codec_ctx->bit_rate = dec_ctx->bit_rate;
-		//}
-		switch (codec->type)
-		{
-		case AVMEDIA_TYPE_VIDEO:	
-			codec_ctx->pix_fmt = is_pixel_format_supported(dec_ctx->pix_fmt) ?
-				dec_ctx->pix_fmt : (AVPixelFormat)get_desired_pixel_format();
-			codec_ctx->width = dec_ctx->width;
-			codec_ctx->height = dec_ctx->height;
-
-			// TODO: check if framerate is supported and change the time base if a different one should be used.
-			break;
-
-		case AVMEDIA_TYPE_AUDIO:
-			codec_ctx->sample_fmt = is_audio_sample_format_supported(dec_ctx->sample_fmt) ?
-				dec_ctx->sample_fmt : (AVSampleFormat)get_desired_audio_sample_format();
-			codec_ctx->sample_rate = is_audio_sample_rate_supported(dec_ctx->sample_rate) ?
-				dec_ctx->sample_rate : get_best_audio_sample_rate();
-			if (is_audio_channel_layout_supported(&dec_ctx->ch_layout))
-			{
-				int err = 0;
-				if ((err = av_channel_layout_copy(&codec_ctx->ch_layout, &dec_ctx->ch_layout)) < 0)
-				{
-					ON_FF_ERROR_WITH_CODE("Could not copy channel layout.", err);
-				}
-			}
-			else
-			{
-				get_best_audio_channel(&codec_ctx->ch_layout);
-			}
-
-			/* Some container formats (like MP4) require global headers to be present.
-			* Mark the encoder so that it behaves accordingly. */
-			if (m.get_format_ctx()->oformat->flags & AVFMT_GLOBALHEADER)
-			{
-				codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
-			}
-
-			if (dec_ctx->time_base != codec_ctx->time_base)
-			{
-				codec_ctx->time_base.num = 1;
-				codec_ctx->time_base.den = codec_ctx->sample_rate;
-				time_base_set = true;
-			}
-
-			break;
-
-		default:
-			break;
-		}
-
-		if (!time_base_set) // if time base is not supposed to be changed, then use the decoder's.
-		{
-			if (dec_ctx->time_base.num != 0 && dec_ctx->time_base.den != 0)
-			{
-				codec_ctx->time_base = dec_ctx->time_base;
-			}
-			else
-			{
-				codec_ctx->time_base = ffhelpers::ff_global_time_base;
-			}
-		}
-
-	}
-
-
-	//avcodec_parameters_free(&par);
-}
-
-void ff::transcode_encoder::create()
-{
-	configure_multithreading(16);
-
-	int ret = 0;
-	/* Init the encoder */
-	if ((ret = avcodec_open2(codec_ctx, codec, NULL)) < 0)
-	{
-		ON_FF_ERROR("Failed to open the encoder.")
-	}
+	create();
 }

@@ -13,6 +13,38 @@ extern "C"
 
 #include <stdexcept>
 
+ff::decoder::decoder(int ID)
+{
+    codec = avcodec_find_decoder((AVCodecID)ID);
+    if (!codec)
+    {
+        ON_FF_ERROR("Failed to find the decoder.")
+    }
+
+    /* Allocate a codec context for the decoder */
+    codec_ctx = avcodec_alloc_context3(codec);
+    if (!codec_ctx)
+    {
+        ON_FF_ERROR("Failed to allocate the decoder context.")
+    }
+}
+
+ff::decoder::decoder(const char* name)
+{
+    codec = avcodec_find_decoder_by_name(name);
+    if (!codec)
+    {
+        ON_FF_ERROR("Failed to find the decoder.")
+    }
+
+    /* Allocate a codec context for the decoder */
+    codec_ctx = avcodec_alloc_context3(codec);
+    if (!codec_ctx)
+    {
+        ON_FF_ERROR("Failed to allocate the decoder context.")
+    }
+}
+
 bool ff::decoder::try_feed(ff::packet& pkt)
 {
     int ret = avcodec_send_packet(codec_ctx, pkt);
@@ -21,7 +53,8 @@ bool ff::decoder::try_feed(ff::packet& pkt)
     {
         switch (ret)
         {
-        case AVERROR_EOF:
+        case AVERROR_EOF: 
+            // Intentionally no break.
         case AVERROR(EAGAIN):
             return false;
         default:
@@ -47,6 +80,7 @@ ff::frame ff::decoder::try_get_one()
         {
         case AVERROR_EOF:
             eof_reached = true;
+            // Intentionally no break.
         case AVERROR(EAGAIN):
             return ff::frame(nullptr);
         default:
@@ -73,34 +107,22 @@ void ff::decoder::start_draining()
 
 ff::input_decoder::input_decoder(const demuxer_port& port) : input_decoder(port.stream.p_stream) {}
 
-ff::input_decoder::input_decoder(const::AVStream* st)
+ff::input_decoder::input_decoder(const::AVStream* st) : decoder(st->codecpar->codec_id)
 {
-    /* find decoder for the stream */
-    codec = avcodec_find_decoder(st->codecpar->codec_id);
-    if (!codec)
-    {
-        ON_FF_ERROR("Failed to find the decoder.")
-    }
-
-    /* Allocate a codec context for the decoder */
-    codec_ctx = avcodec_alloc_context3(codec);
-    if (!codec_ctx)
-    {
-        ON_FF_ERROR("Failed to allocate the decoder context.")
-    }
-
     /* Copy codec parameters from input stream to output codec context */
     if (avcodec_parameters_to_context(codec_ctx, st->codecpar) < 0)
     {
         ON_FF_ERROR("Failed to copy decoder parameters from the stream to decoder context.")
     }
 
+    // time_base is deprecated for decoding.
+    // But we still set it for reference
+    codec_ctx->time_base = st->time_base;
+    // Instead, set the frame rate
+    codec_ctx->framerate = st->r_frame_rate;
+
     // for debug purposes only
     //configure_multithreading(16);
 
-    /* Init the decoder */
-    if (avcodec_open2(codec_ctx, codec, NULL) < 0)
-    {
-        ON_FF_ERROR("Failed to init the decoder.")
-    }
+    create();
 }

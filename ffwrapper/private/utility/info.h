@@ -26,6 +26,7 @@ namespace ff
 
 		// If two different video formats are the same
 		bool operator==(const video_info&) const;
+		bool operator!=(const video_info& right) const { return !operator==(right); }
 
 		constexpr bool valid() const { return AV_PIX_FMT_NONE != pix_fmt; }
 
@@ -46,6 +47,7 @@ namespace ff
 		
 		// If two different audio formats are the same
 		bool operator==(const audio_info&) const;
+		bool operator!=(const audio_info& right) const { return !operator==(right); }
 
 		constexpr bool valid() const { return AV_SAMPLE_FMT_NONE != sample_fmt; }
 

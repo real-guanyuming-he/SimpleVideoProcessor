@@ -21,5 +21,11 @@
     <ClCompile Include="remux.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="remux_per_frame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bugtest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

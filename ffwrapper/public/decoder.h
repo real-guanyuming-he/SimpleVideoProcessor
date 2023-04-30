@@ -27,6 +27,11 @@ namespace ff
 
 	public:
 		decoder() = default;
+		// Finds the decoder by ID and initializes the codec context
+		decoder(int ID);
+		// Finds the decoder by name and initializes the codec context
+		decoder(const char* name);
+
 		~decoder() = default;
 
 	public:

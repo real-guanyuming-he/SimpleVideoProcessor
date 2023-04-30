@@ -80,6 +80,9 @@
     <ClInclude Include="public\muxer.h">
       <Filter>Source Files\public\de/mux</Filter>
     </ClInclude>
+    <ClInclude Include="public\packet_retimer.h">
+      <Filter>Source Files\public\utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\ff_helpers.cpp">
@@ -120,6 +123,9 @@
     </ClCompile>
     <ClCompile Include="public\muxer.cpp">
       <Filter>Source Files\public\de/mux</Filter>
+    </ClCompile>
+    <ClCompile Include="public\packet_retimer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

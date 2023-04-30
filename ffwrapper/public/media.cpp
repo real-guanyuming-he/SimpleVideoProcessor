@@ -160,29 +160,29 @@ void ff::output_stream::set_format(int fmt)
 	p_stream->codecpar->format = fmt;
 }
 
-ff::time ff::input_stream::get_time_base() const
+ff::time ff::stream::get_time_base() const
 {
 	return p_stream->time_base;
+}
+
+bool ff::stream::is_video() const
+{
+	return p_stream ? p_stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO : false;
+}
+
+bool ff::stream::is_audio() const
+{
+	return p_stream ? p_stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO : false;
+}
+
+bool ff::stream::is_subtitle() const
+{
+	return p_stream ? p_stream->codecpar->codec_type == AVMEDIA_TYPE_SUBTITLE : false;
 }
 
 void ff::output_stream::set_time_base(int numerator, int denominator)
 {
 	p_stream->time_base = AVRational{ numerator,denominator };
-}
-
-bool ff::input_stream::is_video() const
-{
-	return p_stream ? p_stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO : false;
-}
-
-bool ff::input_stream::is_audio() const
-{
-	return p_stream ? p_stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO : false;
-}
-
-bool ff::input_stream::is_subtitle() const
-{
-	return p_stream ? p_stream->codecpar->codec_type == AVMEDIA_TYPE_SUBTITLE : false;
 }
 
 ff::output_media::output_media(const std::string& fp)
@@ -375,12 +375,12 @@ ff::output_stream::output_stream(const class encoder& enc, const class output_me
 
 	p_stream->codecpar->codec_type = enc.get_codec()->type;
 	p_stream->codecpar->codec_id = enc.get_codec()->id;
-
 	auto enc_ctx = enc.get_codec_ctx();
-
 	int ret = 0;
 	if ((ret = avcodec_parameters_from_context(p_stream->codecpar, enc_ctx) < 0))
 	{
 		ON_FF_ERROR_WITH_CODE("Could not copy info from the encoder to the stream.", ret);
 	}
+
+	p_stream->time_base = *enc.get_current_time_base();
 }

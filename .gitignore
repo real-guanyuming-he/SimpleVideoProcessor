@@ -38,6 +38,8 @@ Release/
 *.dmp
 
 # multimedia files
+*.mp3
+*.mkv
 *.mp4
 *.avi
 *.bmp

@@ -43,6 +43,8 @@ namespace ff
 
 		/*
 		* Feeds a packet to the output file.
+		* The pkt's content will be copied by the function and will be cleared.
+		* Then, the packet can be reused as if it's come clean from allocation.
 		* 
 		* @returns always true.
 		* @throws std::runtime_error on failure.

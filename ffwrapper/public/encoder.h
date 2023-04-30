@@ -12,6 +12,8 @@ struct AVChannelLayout;
 
 namespace ff
 {
+	struct input_stream;
+
 	/*
 	* Base class for all encoders
 	*/
@@ -105,6 +107,18 @@ namespace ff
 		int get_required_number_of_samples_per_channel() const;
 #pragma endregion
 
+	protected:
+		/*
+		* Requires: the encoder has already been constrcuted by one of the base constructors.
+		 Supposed to be called during derived class constructors to fill info into the codec ctx.
+
+		* Fills the information of the encoder with the info from the decoder and the output media's format.
+		 For each format specified in the decoder, the method checks if that's supported by the encoder.
+
+		* Note: even if the decoder and the encoder use the same codec name or ID, 
+		it may still be the case that some of the formats used by the decoder are not supported by the encoder.
+		*/
+		virtual void fill_encoder_info(const class decoder& dec, const class output_media& m);
 			
 	protected:
 		bool eof_reached = false;
@@ -147,12 +161,21 @@ namespace ff
 		transcode_encoder(const class decoder& dec, const class output_media& m, int ID);
 
 	private:
-		// Fills the information of the encoder with the info from the decoder and the output media's format
-		void fill_encoder_info(const class decoder& dec, const class output_media& m);
 
-		// After the info is filled in, we call this to create the encoder.
-		void create();
 
+	};
+
+	/*
+	* Used only for encoding that uses exactly the same codec as the input video's
+	*/
+	class direct_encoder : public encoder
+	{
+	public:
+		direct_encoder() = default;
+		// Creates the encoder that uses the same setting as the decoder and the input stream.
+		explicit direct_encoder(const decoder& d, const output_media& m, const ff::input_stream& ins);
+
+		~direct_encoder() { destroy(); }
 	};
 
 	/*

@@ -18,9 +18,6 @@ extern "C"
 #include <libswscale/swscale.h>
 }
 
-constexpr auto input_file_name = "D:\\GameRec\\Doom Eternal\\lv1.mp4";
-constexpr auto output_file_name = "remux_output.mp4";
-
 /*
 * Remuxes in_file into out_file since start_time.
 * Assuems that in_file and out_file have the same extension.

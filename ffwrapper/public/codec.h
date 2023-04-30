@@ -20,6 +20,15 @@ namespace ff
 		virtual ~codec_base() = default;
 
 	public:
+		/*
+		* Requires that codec and codec_ctx are initialized.
+		* Requires additionally that codec_ctx has been filled with necessary information.
+		* 
+		* Creates the codec by calling avcodec_open2.
+		* Throws std::runtime_error on error.
+		*/
+		virtual void create();
+
 		// Destroys the codec ctx, but not the codec.
 		virtual void destroy();
 

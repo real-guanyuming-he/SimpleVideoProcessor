@@ -24,8 +24,10 @@ extern "C"
 
 constexpr auto input_file_name = "D:\\GameRec\\Doom Eternal\\lv1.mp4";
 constexpr auto remux_output_file_name = "remux_output.mp4";
+constexpr auto remux_per_frame_output_file_name = "remux_per_frame_output.mp4";
 
 void remux(const char* in_file, const char* out_file, double start_time);
+void remux_per_frame(const char* in_file, const char* out_file, double start_time);
 
 int main()
 {
@@ -190,7 +192,8 @@ int main()
         std::cout << e.what() << std::endl;
     }*/
 
-	remux(input_file_name, remux_output_file_name, 1200.0);
+	//remux(input_file_name, remux_output_file_name, 1200.0);
+	remux_per_frame(input_file_name, remux_per_frame_output_file_name, 1200.0);
 
     return 0;
 }

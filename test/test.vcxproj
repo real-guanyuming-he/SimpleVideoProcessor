@@ -139,7 +139,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bugtest.cpp" />
     <ClCompile Include="remux.cpp" />
+    <ClCompile Include="remux_per_frame.cpp" />
     <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -11,6 +11,14 @@ extern "C"
 
 #include <stdexcept>
 
+void ff::codec_base::create()
+{
+	if (avcodec_open2(codec_ctx, codec, NULL) < 0)
+	{
+		ON_FF_ERROR("Failed to init the decoder.")
+	}
+}
+
 void ff::codec_base::destroy()
 {
 	ffhelpers::safely_free_codec_context(&codec_ctx);

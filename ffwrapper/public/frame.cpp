@@ -47,6 +47,11 @@ void ff::frame::allocate()
 	}
 }
 
+void ff::frame::unref()
+{
+	av_frame_unref(buffer);
+}
+
 void ff::frame::destroy()
 {
 	ffhelpers::safely_free_frame(&buffer);
