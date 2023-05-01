@@ -12,7 +12,7 @@
 //#include "../ffwrapper/public/encoder.h"
 
 #include <memory> // For unique ptr
-#include <vector>
+#include <list>
 #include <utility> // For pair
 
 // In the proxy dll, variables are considered as private and are put into namespaces.
@@ -36,56 +36,67 @@ namespace clip_page
 
 	* I want to read through the file as few times as possible. Therefore, the problem is equivalent to
 	task scheduling on minimal number of computers (taught in INT202, lecture 9)
+
+	* Data structure list is used for convenience of insertion sort.
+	I want to maintain the sorted property always after an insertion of task,
+	so this algorithm is a very good choice.
 	*/
-	extern std::vector<std::pair<float, float>> tasks_to_be_scheduled;
-	extern std::vector<std::vector<std::pair<float, float>>> tasks_scheduled;
+	extern std::vector<std::list<std::pair<float, float>>> tasks_scheduled;
 }
 
-	/*
-	* If it returns true, then a call to open_video() has been successful,
-	* and the video can be processed by the other functions.
-	*
-	* @returns true iff both the input and the output are opened.
-	*/
-	extern bool clip_page_is_video_ready();
+/*
+* If it returns true, then a call to open_video() has been successful,
+* and the video can be processed by the other functions.
+*
+* @returns true iff both the input and the output are opened.
+*/
+extern bool clip_page_is_video_ready();
 
-	/*
-	* Resets all variables to their initial states (i.e. nullptrs).
-	*/
-	extern void clip_page_reset();
+/*
+* Resets all variables to their initial states (i.e. nullptrs).
+*/
+extern void clip_page_reset();
 
-	/*
-	* Only resets the variables for input.
-	*/
-	extern void clip_page_reset_input_only();
-	/*
-	* Only resets the variables for output.
-	*/
-	extern void clip_page_reset_output_only();
+/*
+* Only resets the variables for input.
+*/
+extern void clip_page_reset_input_only();
+/*
+* Only resets the variables for output.
+*/
+extern void clip_page_reset_output_only();
 
-	/*
-	* Opens a video decided by file_path as the clipping input and initializes all corresponding variables on success.
-	* On failure, ALL variables (include those for output) are reset to ensure that they are in their initial states.
-	*
-	* @param file_path: path to the file
-	* @returns true iff the video is opened successfully.
-	*/
-	extern bool clip_page_open_input_video(const char* file_path);
+/*
+* Opens a video decided by file_path as the clipping input and initializes all corresponding variables on success.
+* On failure, ALL variables (include those for output) are reset to ensure that they are in their initial states.
+*
+* @param file_path: path to the file
+* @returns true iff the video is opened successfully.
+*/
+extern bool clip_page_open_input_video(const char* file_path);
 
-	/*
-	* Requires that the input is opened.
-	*
-	* Opens a video decided by file_path as the clipping input and initializes all corresponding variables on success.
-	* On failure, all output variables are reset to ensure they are in their initial states.
-	*
-	* @param file_path: path without the extension name to the file
-	* @returns true iff the output is opened successfully.
-	*/
-	extern bool clip_page_open_output_video(const char* filepath_without_extension);
+/*
+* Requires that the input is opened.
+*
+* Opens a video decided by file_path as the clipping input and initializes all corresponding variables on success.
+* On failure, all output variables are reset to ensure they are in their initial states.
+*
+* @param file_path: path without the extension name to the file
+* @returns true iff the output is opened successfully.
+*/
+extern bool clip_page_open_output_video(const char* filepath_without_extension);
 
-	/*
-	* If tasks_to_be_scheduled is not empty, 
-	then schedule in by the algorithm commented above the variable,
-	and write the result in tasks_scheduled.
-	*/
-	extern void clip_page_schedule_tasks();
+/*
+* If tasks_to_be_scheduled is not empty,
+then schedule in by the algorithm commented above the variable,
+and write the result in tasks_scheduled.
+
+@param tasks: a pointer to the array of tasks. A task is two consecutive floats in memory.
+Requires that the tasks are sorted in the ascending order of their start times.
+This is better done on the GUI side, because task start points are selected from clip points,
+and the GUI side knows all about these points.
+Also, requires that no finishing time of the tasks can exceed the duration of the video.
+This also has to be ensured by the GUI.
+@param number: the number of tasks in the array.
+*/
+extern void clip_page_schedule_tasks(const float* tasks, int number);
