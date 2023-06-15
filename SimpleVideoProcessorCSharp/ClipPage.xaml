@@ -57,26 +57,34 @@
                     </Expander.Header>
 
                     <Expander.Content>
-                        <TextBlock 
-                            x:Name="VideoNameTextBlock"
-                            Text="No video file is opened." 
-                            FontWeight="Bold"/>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock 
+                                x:Name="VideoNameTextBlock"
+                                HorizontalAlignment="Center"
+                                Text="No video file is opened." 
+                                FontWeight="Bold"/>
+                            <Image x:Name="PreviewImage"
+                                   MaxWidth="720"
+                                   HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Expander.Content>
                 </Expander>
 
                 <Expander
                     x:Name="ClipTimeExpander"
-                    IsEnabled="False"
+                    IsEnabled="True"
                     HorizontalAlignment="Stretch"
                     CornerRadius="{StaticResource PageEntryCornerRadius}"
                     Margin="{StaticResource PageEntryMarginThickness}">
                     <Expander.Header>
                         <local:PageEntry 
                             x:Name="EntryTestExpander"
-                            Header="Another Test"
-                            Description="Test entry inside an expander">
+                            Header="Choose clip points"
+                            Description="Choose where you want the clips to start and end.">
                             <local:PageEntry.Content>
-                                <Button Content="Another"/>
+                                <Button x:Name="StartClippingButton" 
+                                        Content="Start Clipping"
+                                        Click="StartClippingButton_Click"/>
                             </local:PageEntry.Content>
 
                             <local:PageEntry.Icon>

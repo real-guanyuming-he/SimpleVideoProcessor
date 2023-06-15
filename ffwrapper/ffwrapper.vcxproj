@@ -106,12 +106,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>C:\vcpkg\vcpkg\installed\x64-windows-static\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\vcpkg\vcpkg\installed\x64-windows-static\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Tools\vcpkg\installed\x64-windows\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>C:\vcpkg\vcpkg\installed\x64-windows-static\debug\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\vcpkg\vcpkg\installed\x64-windows-static\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Tools\vcpkg\installed\x64-windows\include</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

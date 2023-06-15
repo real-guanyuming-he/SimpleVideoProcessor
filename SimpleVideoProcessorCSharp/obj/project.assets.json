@@ -1187,11 +1187,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Guany\\source\\repos\\SimpleVideoProcessor\\SimpleVideoProcessorCSharp\\SimpleVideoProcessorCSharp.csproj",
+      "projectUniqueName": "C:\\Users\\Guany\\Documents\\Projects\\SimpleVideoProcessor\\SimpleVideoProcessorCSharp\\SimpleVideoProcessorCSharp.csproj",
       "projectName": "SimpleVideoProcessorCSharp",
-      "projectPath": "C:\\Users\\Guany\\source\\repos\\SimpleVideoProcessor\\SimpleVideoProcessorCSharp\\SimpleVideoProcessorCSharp.csproj",
+      "projectPath": "C:\\Users\\Guany\\Documents\\Projects\\SimpleVideoProcessor\\SimpleVideoProcessorCSharp\\SimpleVideoProcessorCSharp.csproj",
       "packagesPath": "C:\\Users\\Guany\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Guany\\source\\repos\\SimpleVideoProcessor\\SimpleVideoProcessorCSharp\\obj\\",
+      "outputPath": "C:\\Users\\Guany\\Documents\\Projects\\SimpleVideoProcessor\\SimpleVideoProcessorCSharp\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -1247,27 +1247,27 @@
         "downloadDependencies": [
           {
             "name": "Microsoft.AspNetCore.App.Runtime.win-arm64",
-            "version": "[6.0.14, 6.0.14]"
+            "version": "[6.0.18, 6.0.18]"
           },
           {
             "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-            "version": "[6.0.14, 6.0.14]"
+            "version": "[6.0.18, 6.0.18]"
           },
           {
             "name": "Microsoft.AspNetCore.App.Runtime.win-x86",
-            "version": "[6.0.14, 6.0.14]"
+            "version": "[6.0.18, 6.0.18]"
           },
           {
             "name": "Microsoft.NETCore.App.Runtime.win-arm64",
-            "version": "[6.0.14, 6.0.14]"
+            "version": "[6.0.18, 6.0.18]"
           },
           {
             "name": "Microsoft.NETCore.App.Runtime.win-x64",
-            "version": "[6.0.14, 6.0.14]"
+            "version": "[6.0.18, 6.0.18]"
           },
           {
             "name": "Microsoft.NETCore.App.Runtime.win-x86",
-            "version": "[6.0.14, 6.0.14]"
+            "version": "[6.0.18, 6.0.18]"
           },
           {
             "name": "Microsoft.Windows.SDK.NET.Ref",
@@ -1275,15 +1275,15 @@
           },
           {
             "name": "Microsoft.WindowsDesktop.App.Runtime.win-arm64",
-            "version": "[6.0.14, 6.0.14]"
+            "version": "[6.0.18, 6.0.18]"
           },
           {
             "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
-            "version": "[6.0.14, 6.0.14]"
+            "version": "[6.0.18, 6.0.18]"
           },
           {
             "name": "Microsoft.WindowsDesktop.App.Runtime.win-x86",
-            "version": "[6.0.14, 6.0.14]"
+            "version": "[6.0.18, 6.0.18]"
           }
         ],
         "frameworkReferences": {
@@ -1294,7 +1294,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.201\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.304\\RuntimeIdentifierGraph.json"
       }
     },
     "runtimes": {
