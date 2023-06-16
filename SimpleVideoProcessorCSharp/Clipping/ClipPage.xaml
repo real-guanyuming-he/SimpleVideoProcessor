@@ -1,0 +1,270 @@
+<!-- Copyright (c) Microsoft Corporation and Contributors. -->
+<!-- Licensed under the MIT License. -->
+
+<Page
+    x:Class="SimpleVideoProcessorCSharp.ClipPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SimpleVideoProcessorCSharp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource LevanderPageBackground}">
+
+    <!--Margin: 56 is the horizontal space of the navigation view header-->
+    <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            BorderThickness="3"
+            Margin="56,12,56,12"
+            CornerRadius="8"
+            BorderBrush="{ThemeResource LevanderLightPrimary}">
+        <ScrollViewer
+            ZoomMode="Disabled"
+            HorizontalScrollMode="Disabled" VerticalScrollMode="Enabled"
+            VerticalScrollBarVisibility="Auto"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel Orientation="Vertical"
+                        Spacing="8">
+                <!-- Open Video Area -->
+                <Expander
+                    HorizontalAlignment="Stretch"
+                    CornerRadius="{StaticResource PageEntryCornerRadius}"
+                    Margin="{StaticResource PageEntryMarginThickness}">
+                    <Expander.Header>
+                        <local:PageEntry 
+                            x:Name="OpenVideoEntry"
+                            Header="Open a video file"
+                            Description="Please open a video file to proceed.">
+                            <local:PageEntry.Content>
+                                <StackPanel 
+                                    Orientation="Horizontal"
+                                    Spacing="12">
+                                    <Button 
+                                        x:Name="OpenVideoButton"
+                                        Content="Open Video"
+                                        Click="OpenVideoButton_Click"
+                                    />
+                                    <Button 
+                                        x:Name="ClearVideoButton"
+                                        Content="Clear Video"
+                                        Click="ClearVideoButton_Click"
+                                    />
+                                </StackPanel>
+                            </local:PageEntry.Content>
+
+                            <local:PageEntry.Icon>
+                                <FontIcon Glyph="&#xE8E5;" />
+                            </local:PageEntry.Icon>
+                        </local:PageEntry>
+                    </Expander.Header>
+
+                    <!-- Video Information Area -->
+                    <Expander.Content>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock 
+                                x:Name="VideoNameTextBlock"
+                                HorizontalAlignment="Center"
+                                Text="No video file is opened." 
+                                FontWeight="Bold"/>
+                            <Image x:Name="PreviewImage"
+                                   MaxWidth="720"
+                                   HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Expander.Content>
+                </Expander>
+
+                <!-- Clipping operation Piece Expander -->
+                <Expander
+                    x:Name="ClipTimeExpander"
+                    IsEnabled="False"
+                    HorizontalAlignment="Stretch"
+                    CornerRadius="{StaticResource PageEntryCornerRadius}"
+                    Margin="{StaticResource PageEntryMarginThickness}">
+                    <Expander.Header>
+                        <local:PageEntry 
+                            x:Name="EntryTestExpander"
+                            Header="Define clip pieces"
+                            Description="Choose where you want the clips to start and end.">
+                            <local:PageEntry.Content>
+                                <Button x:Name="StartClippingButton" 
+                                        Content="Start Clipping"
+                                        Click="StartClippingButton_Click"/>
+                            </local:PageEntry.Content>
+
+                            <local:PageEntry.Icon>
+                                <SymbolIcon Symbol="Add"/>
+                            </local:PageEntry.Icon>
+                        </local:PageEntry>
+                    </Expander.Header>
+
+                    <!-- Clip Piece Management Area -->
+                    <Expander.Content>
+                        <Grid
+                            HorizontalAlignment="Stretch"
+                            RowSpacing="6">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <!-- Info panel -->
+                            <StackPanel 
+                                Orientation="Vertical"
+                                Grid.Row="0">
+                                <InfoBar
+                                    x:Name="ClipTutorialBar"
+                                    IsOpen="True"
+                                    Title="Clipping"
+                                    Severity="Informational"
+                                    IsClosable="True"
+                                    MaxWidth="720"
+                                    Message="Clipping a video in this software is to define clip pieces that the video will be clipped into. A clip piece is defined by two time instants: Start and End. Add a clip piece to start.">
+                                </InfoBar>
+                                <InfoBar
+                                    x:Name="ClipMessageBar"
+                                    IsOpen="False"
+                                    Severity="Informational"
+                                    IsClosable="True"
+                                    MaxWidth="720">
+                                </InfoBar>
+                            </StackPanel>
+
+                            <!-- Clip Piece Management Panel -->
+                            <StackPanel
+                                x:Name="ClipPieceManagementPanel"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                BorderThickness="1" BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
+                                Padding="4,4,4,4"
+                                Spacing="8"
+                                Grid.Row="1">
+                                <Button
+                                    x:Name="AddClipPieceButton"
+                                    Click="AddClipPieceButton_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE710;" />
+                                        <TextBlock>Add</TextBlock>
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    x:Name="DeleteClipPieceButton"
+                                    Click="DeleteClipPieceButton_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE738;" />
+                                        <TextBlock>Delete</TextBlock>
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    x:Name="ConfirmDeletionButton"
+                                    IsEnabled="False">
+                                    <Button.Flyout>
+                                        <Flyout x:Name="DeletionConfirmationFlyout">
+                                            <StackPanel>
+                                                <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="Are you sure you want to remove all clip pieces selected?" Margin="0,0,0,12" />
+                                                <Button 
+                                                    x:Name="ConfirmDeletionYesButton"
+                                                    Click="ConfirmDeletionYesButton_Click"
+                                                    Content="Yes, remove them."/>
+                                            </StackPanel>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                    Confirm Deletion
+                                </Button>
+                                <Button
+                                    x:Name="CancelDeletionButton"
+                                    Content="Cancel Deletion"
+                                    IsEnabled="False"
+                                    Click="CancelDeletionButton_Click"/>
+                            </StackPanel>
+                            <StackPanel
+                                x:Name="ClipPointPanel"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                BorderThickness="1" BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
+                                Padding="4,4,4,4"
+                                Spacing="8"
+                                Grid.Row="2">
+                                <NumberBox
+                                    x:Name="HourInput"
+                                    Header="Hours"
+                                    SpinButtonPlacementMode="Compact"/>
+                                <NumberBox
+                                    x:Name="MinuteInput"
+                                    Header="Mins"
+                                    SpinButtonPlacementMode="Compact"/>
+                                <NumberBox
+                                    x:Name="SecondInput"
+                                    Header="Secs"
+                                    SpinButtonPlacementMode="Compact"/>
+                                <Button 
+                                    x:Name="SetStartButton"
+                                    Click="SetStartButton_Click"
+                                    IsEnabled="False"
+                                    Content="Set as Start"/>
+                                <Button
+                                    x:Name="SetEndButton"
+                                    Click="SetEndButton_Click"
+                                    IsEnabled="False"
+                                    Content="Set as End"/>
+                            </StackPanel>
+                            <ListView 
+                                x:Name="ClipPiecesList"
+                                Grid.Row="3"
+                                SelectionMode="Single"
+                                SelectionChanged="ClipPiecesList_SelectionChanged"
+                                MaxHeight="720">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="local:ClipPiece">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Ellipse 
+                                                x:Name="Ellipse"
+                                                Grid.RowSpan="2"
+                                                Width ="32"
+                                                Height="32"
+                                                Margin="6"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                Fill="{ThemeResource SystemControlBackgroundBaseMediumBrush}"/>
+                                            <StackPanel 
+                                                Orientation="Horizontal"
+                                                Grid.Column="1" Grid.Row="0"
+                                                Spacing="10"
+                                                Margin="12,6,0,0">
+                                                <TextBlock>Start:</TextBlock>
+                                                <TextBlock 
+                                                    Text="{x:Bind Start}"
+                                                    x:Phase="1"
+                                                    Style="{ThemeResource BaseTextBlockStyle}"/>
+                                            </StackPanel>
+                                            <StackPanel 
+                                                Orientation="Horizontal"
+                                                Grid.Column="1" Grid.Row="1"
+                                                Spacing="10"
+                                                Margin="12,0,0,6">
+                                                <TextBlock>End:</TextBlock>
+                                                <TextBlock  
+                                                    Text="{x:Bind End}"
+                                                    x:Phase="2"
+                                                    Style="{ThemeResource BaseTextBlockStyle}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+
+                            </ListView>
+                        </Grid>
+
+                    </Expander.Content>
+                </Expander>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</Page>
