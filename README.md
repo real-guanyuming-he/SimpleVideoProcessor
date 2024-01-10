@@ -1,4 +1,1 @@
-# SimpleVideoProcessor
-A video processor that is designed to complete simple processing jobs, clipping, transcoding, resizing, merging, etc.
-
-# Currently under development
+# This project is ABANDONED. I MAY OPEN A NEW PROJECT TO START FROM THE BEGINNING.
