@@ -1,1 +1,2 @@
-# This project is ABANDONED. I MAY OPEN A NEW PROJECT TO START FROM THE BEGINNING.
+# This project is ABANDONED and BEING REDONE from the beginning. See its successor here:
+https://github.com/real-guanyuming-he/simple_video_processor
